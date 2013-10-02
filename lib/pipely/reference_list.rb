@@ -14,7 +14,7 @@ module Pipely
       @raw_references.map{|h| Dependency.new(label, h['ref'])}
     end
 
-    def to_json(options={})
+    def to_json(options={}, depth=0)
       if 1 == @raw_references.count
         @raw_references.first.to_json(options)
       else

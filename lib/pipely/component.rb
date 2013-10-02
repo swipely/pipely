@@ -84,7 +84,7 @@ module Pipely
       deps
     end
 
-    def to_json(options={})
+    def to_json(options={}, depth=0)
       h = @original_args
 
       REFERENCE_KEYS.each do |key|
