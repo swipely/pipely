@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'pipely'
+require 'optparse'
+
+output_path = nil
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: pipely [options] definition.json"
+
+  opts.on("-o", "--output PATH",
+          "Path to write PNG file(s) of graph visualization(s)") do |output|
+    output_path = output
+  end
+end.parse!
+
+definition_file = ARGV.last
+definition_json = File.open(definition_file).read
+
+output_base = File.basename(definition_file,".*") + '.png'
+output_file = output_path ? File.join(output_path, output_base) : output_base
+
+puts "Generating #{output_file}"
+Pipely.draw(definition_json, output_file)
