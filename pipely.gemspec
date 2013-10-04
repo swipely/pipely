@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["matt@swipely.com"]
   s.homepage    = "http://github.com/swipely/pipely"
   s.summary     = "Generate dependency graphs from pipeline definitions."
+  s.license     = 'MIT'
 
   s.files = Dir["{lib}/**/*"] + ["Rakefile", "README.md"]
   s.test_files = Dir["spec/**/*"]
