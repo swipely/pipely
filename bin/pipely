@@ -3,10 +3,21 @@
 require 'pipely'
 require 'optparse'
 
-output_path = nil
+pipeline_id = input_path = output_path = nil
+verbose = automatic_open = false
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: pipely [options] definition.json"
+  opts.banner = "Usage: pipely [options]"
+
+  opts.on("-p", "--pipeline-id PIPELINE_ID",
+          "ID of a live pipeline to visualize with live execution statuses") do |id|
+    pipeline_id = id
+  end
+
+  opts.on("-i", "--input PATH",
+          "Path to a JSON pipeline definition file to visualize") do |input|
+    input_path = input
+  end
 
   opts.on("-o", "--output PATH",
           "Path to write PNG file(s) of graph visualization(s)") do |output|
@@ -14,11 +25,20 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-definition_file = ARGV.last
-definition_json = File.open(definition_file).read
+if pipeline_id
+  live_pipeline = Pipely::LivePipeline.new(pipeline_id)
+  live_pipeline.print_runs_report
+  live_pipeline.render_graphs
 
-output_base = File.basename(definition_file,".*") + '.png'
-output_file = output_path ? File.join(output_path, output_base) : output_base
+  puts "open: #{automatic_open}"
+  puts "verbose: #{verbose}"
 
-puts "Generating #{output_file}"
-Pipely.draw(definition_json, output_file)
+else
+  input_path ||= ARGV.last
+  definition_json = File.open(input_path).read
+  output_base = File.basename(definition_file,".*") + '.png'
+  output_file = output_path ? File.join(output_path, output_base) : output_base
+
+  puts "Generating #{output_file}"
+  Pipely.draw(definition_json, output_file)
+end

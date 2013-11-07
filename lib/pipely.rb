@@ -1,5 +1,6 @@
 require 'pipely/definition'
 require 'pipely/graph_builder'
+require 'pipely/live_pipeline'
 
 # The top-level module for this gem. It provides the recommended public
 # interface for using Pipely to visualize and manipulate your Data Pipeline
