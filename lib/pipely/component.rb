@@ -27,7 +27,7 @@ module Pipely
       'FAILED' => 'orangered',
     }
 
-    include Virtus
+    include Virtus.model
 
     attribute :id, String
     attribute :type, String
