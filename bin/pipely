@@ -30,11 +30,7 @@ if pipeline_id
   live_pipeline.print_runs_report
   live_pipeline.render_graphs
 
-  puts "open: #{automatic_open}"
-  puts "verbose: #{verbose}"
-
-else
-  input_path ||= ARGV.last
+elsif input_path
   definition_json = File.open(input_path).read
   output_base = File.basename(definition_file,".*") + '.png'
   output_file = output_path ? File.join(output_path, output_base) : output_base
