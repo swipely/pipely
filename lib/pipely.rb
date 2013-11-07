@@ -8,9 +8,12 @@ require 'pipely/live_pipeline'
 #
 module Pipely
 
-  def self.draw(definition_json, filename, node_attributes=nil)
+  def self.draw(definition_json, filename, component_attributes=nil)
     definition = Definition.parse(definition_json)
-    definition.apply_node_attributes(node_attributes) if node_attributes
+
+    if component_attributes
+      definition.apply_component_attributes(component_attributes)
+    end
 
     graph_builder = GraphBuilder.new
 

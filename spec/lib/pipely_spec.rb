@@ -24,13 +24,14 @@ describe Pipely do
       described_class.draw(definition_json, filename)
     end
 
-    context 'with node_attributes' do
-      let(:node_attributes) { stub }
+    context 'with component_attributes' do
+      let(:component_attributes) { stub }
 
-      it 'applies the node_attributes to the definition' do
-        definition.should_receive(:apply_node_attributes).with(node_attributes)
+      it 'applies the component_attributes to the definition' do
+        definition.should_receive(:apply_component_attributes).
+          with(component_attributes)
 
-        described_class.draw(definition_json, filename, node_attributes)
+        described_class.draw(definition_json, filename, component_attributes)
       end
     end
   end
