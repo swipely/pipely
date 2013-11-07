@@ -29,19 +29,31 @@ module Pipely
     def add_edges(components)
       components.each do |component|
         component.dependencies.each do |dependency|
-          options = {
-            :label => dependency.label,
-            :color => dependency.color,
-          }
-
-          options[:dir] = 'back' if ('input' == dependency.label)
-
-          @graph.add_edges(
-            component.id,
-            dependency.target_id,
-            options
-          )
+          add_edge(component, dependency)
         end
+      end
+    end
+
+    def add_edge(component, dependency)
+      options = {
+        :label => dependency.label,
+        :color => dependency.color,
+      }
+
+      options[:dir] = 'back' if ('input' == dependency.label)
+
+      if 'output' == dependency.label
+        @graph.add_edges(
+          dependency.target_id,
+          component.id,
+          options
+        )
+      else
+        @graph.add_edges(
+          component.id,
+          dependency.target_id,
+          options
+        )
       end
     end
 
