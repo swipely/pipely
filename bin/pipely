@@ -32,7 +32,7 @@ if pipeline_id
 
 elsif input_path
   definition_json = File.open(input_path).read
-  output_base = File.basename(definition_file,".*") + '.png'
+  output_base = File.basename(input_path,".*") + '.png'
   output_file = output_path ? File.join(output_path, output_base) : output_base
 
   puts "Generating #{output_file}"
