@@ -32,7 +32,13 @@ module Pipely
         formatted_start = start.gsub(/[:-]/, '').sub('T', '-')
 
         filename = "graphs/#{@pipeline_id}-#{formatted_start}-#{utc_time}.png"
-        puts "Generating #{filename}"
+
+        if $stdout.tty?
+          $stdout.puts "Generating #{filename}"
+        else
+          $stdout.puts filename
+        end
+
         Pipely.draw(@definition_json, filename, task_states)
       end
 
