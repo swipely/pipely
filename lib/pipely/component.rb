@@ -17,6 +17,7 @@ module Pipely
       'onFail',
       'onSuccess',
       'dataFormat',
+      'precondition',
     ]
 
     STATE_COLORS = {
@@ -42,6 +43,7 @@ module Pipely
     attribute :onFail, ReferenceList
     attribute :onSuccess, ReferenceList
     attribute :dataFormat, ReferenceList
+    attribute :precondition, ReferenceList
 
     def initialize(args)
       @original_args = args.clone
@@ -70,6 +72,7 @@ module Pipely
 
     def dependencies(scope=nil)
       deps = dependsOn.build_dependencies('dependsOn') +
+        precondition.build_dependencies('precondition') +
         input.build_dependencies('input') +
         output.build_dependencies('output')
 
