@@ -8,6 +8,10 @@ module Pipely
         config[:name]
       end
 
+      def base_filename
+        config[:namespace]
+      end
+
       def s3_path_builder
         S3PathBuilder.new(config[:s3].merge(prefix: s3_prefix))
       end
