@@ -1,0 +1,1 @@
+require 'pipely/deploy/client'
