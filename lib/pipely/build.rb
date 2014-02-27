@@ -18,7 +18,13 @@ module Pipely
       case environment.to_sym
       when :production
         s3_prefix = "production/#{config[:namespace]}"
-        scheduler = DailyScheduler.new
+        if config[:start_time]
+          # allow config to change pipelint start time
+          # TODO: all scheduling should be done through config before pipely 1.0
+          scheduler = DailyScheduler.new(config[:start_time])
+        else
+          scheduler = DailyScheduler.new
+        end
       when :staging
         s3_prefix = "staging/#{`whoami`.strip}/#{config[:namespace]}"
         scheduler = RightNowScheduler.new
