@@ -29,11 +29,15 @@ module Pipely
       end
 
       def s3_asset_prefix
-        "s3://#{@assets_bucket}/#{@s3prefix}/#{START_TIME}"
+        "s3://#{@assets_bucket}/#{bucket_relative_s3_asset_prefix}"
       end
 
       def s3n_asset_prefix
         "s3n://#{@assets_bucket}/#{@s3prefix}/#{START_TIME}"
+      end
+
+      def bucket_relative_s3_asset_prefix
+        "#{@s3prefix}/#{START_TIME}"
       end
 
       def to_hash
@@ -42,7 +46,8 @@ module Pipely
           :s3_step_prefix => s3_step_prefix,
           :s3n_step_prefix => s3n_step_prefix,
           :s3_asset_prefix => s3_asset_prefix,
-          :s3n_asset_prefix => s3n_asset_prefix
+          :s3n_asset_prefix => s3n_asset_prefix,
+          :bucket_relative_s3_asset_prefix => bucket_relative_s3_asset_prefix,
         }
       end
 
