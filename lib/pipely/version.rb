@@ -1,3 +1,3 @@
 module Pipely
-  VERSION = "0.2.5" unless defined?(::DataPipelineGraphviz::VERSION)
+  VERSION = "0.3.0" unless defined?(::DataPipelineGraphviz::VERSION)
 end
