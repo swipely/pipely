@@ -39,6 +39,7 @@ describe Pipely::Build::S3PathBuilder do
         :s3n_step_prefix,
         :s3_asset_prefix,
         :s3n_asset_prefix,
+        :bucket_relative_s3_asset_prefix,
       ])
     end
   end
