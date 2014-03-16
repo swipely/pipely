@@ -33,13 +33,9 @@ module Pipely
     end
 
     def task_states_by_scheduled_start
-      c = Fog::AWS[:data_pipeline]
-      instances = c.query_objects(pipeline_id, 'INSTANCE')
-      instance_details = c.describe_objects(pipeline_id, instances['ids'])
-
       task_states_by_scheduled_start = {}
 
-      instance_details['pipelineObjects'].each do |pipeline_object|
+      all_instances.each do |pipeline_object|
         component_id = status = scheduled_start = nil
 
         pipeline_object['fields'].each do |field|
@@ -60,6 +56,33 @@ module Pipely
       end
 
       task_states_by_scheduled_start
+    end
+
+  private
+
+    def all_instances
+      c = Fog::AWS[:data_pipeline]
+
+      result = {}
+      pipeline_objects = []
+
+      begin
+        if result['marker']
+          marker = JSON.parse(result['marker'])['primary']
+        end
+
+        result = c.query_objects(
+          pipeline_id,
+          'INSTANCE',
+          marker: result['marker']
+        )
+
+        instance_details = c.describe_objects(pipeline_id, result['ids'])
+        pipeline_objects += instance_details['pipelineObjects']
+
+      end while (result['hasMoreResults'] && result['marker'])
+
+      pipeline_objects
     end
 
   end

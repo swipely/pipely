@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency "ruby-graphviz"
   s.add_dependency "rake"
   s.add_dependency "virtus", "~>1.0.0"
-  s.add_dependency "fog", "~>1.20.0"
+  s.add_dependency "fog", "~>1.21.0"
   s.add_dependency "unf"
   s.add_dependency "uuidtools"
   s.add_dependency "activesupport"
