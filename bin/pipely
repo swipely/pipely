@@ -20,7 +20,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("-o", "--output PATH",
-          "Path to write PNG file(s) of graph visualization(s)") do |output|
+          "Local or S3 path to write PNG file(s) of graph visualization(s)") do |output|
     output_path = output
   end
 end.parse!
@@ -28,7 +28,7 @@ end.parse!
 if pipeline_id
   live_pipeline = Pipely::LivePipeline.new(pipeline_id)
   live_pipeline.print_runs_report
-  live_pipeline.render_graphs
+  live_pipeline.render_graphs(output_path)
 
 elsif input_path
   definition_json = File.open(input_path).read
