@@ -7,7 +7,7 @@ module Pipely
   class Options
 
     attr_accessor :pipeline_id, :input_path, :output_path,
-      :verbose, :automatic_open
+      :verbose, :automatic_open, :json_output
 
     def self.parse
       options = Pipely::Options.new
@@ -28,6 +28,10 @@ module Pipely
         opts.on("-o", "--output PATH",
           "Local or S3 path to write Graphviz PNG file(s)") do |output|
           options.output_path = output
+        end
+
+        opts.on("-j", "--json", "Write STDOUT formatted as JSON") do |json|
+          options.json_output = json
         end
       end.parse!
 
