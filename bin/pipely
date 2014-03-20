@@ -5,15 +5,9 @@ require 'pipely'
 options = Pipely::Options.parse
 
 if options.pipeline_id
-  live_pipeline = Pipely::LivePipeline.new(options.pipeline_id)
-  live_pipeline.print_runs_report
-  live_pipeline.render_graphs(options.output_path)
+  Pipely::Actions::GraphLivePipeline.new(options).execute
 
 elsif options.input_path
-  definition_json = File.open(options.input_path).read
-  output_base = File.basename(options.input_path,".*") + '.png'
-  output_file = options.output_path ? File.join(options.output_path, output_base) : output_base
+  Pipely::Actions::GraphFilePipeline.new(options).execute
 
-  puts "Generating #{output_file}"
-  Pipely.draw(definition_json, output_file)
 end

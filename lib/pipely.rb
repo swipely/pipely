@@ -1,4 +1,5 @@
 require 'pipely/options'
+require 'pipely/actions'
 require 'pipely/definition'
 require 'pipely/graph_builder'
 require 'pipely/live_pipeline'
