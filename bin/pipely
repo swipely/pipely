@@ -10,4 +10,7 @@ if options.pipeline_id
 elsif options.input_path
   Pipely::Actions::GraphFilePipeline.new(options).execute
 
+else
+  Pipely::Actions::ListLivePipelines.new(options).execute
+
 end
