@@ -25,6 +25,7 @@ module Pipely
       S3Writer.new(filename).write(content)
     else
       graph.output( :png => filename )
+      filename
     end
   end
 
