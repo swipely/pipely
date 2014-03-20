@@ -2,7 +2,7 @@ require 'pipely'
 
 describe Pipely do
   let(:definition_json) { stub }
-  let(:filename) { stub }
+  let(:filename) { 'path/to/graph.png' }
   let(:definition) { stub }
 
   before do
