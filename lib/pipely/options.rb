@@ -7,7 +7,7 @@ module Pipely
   class Options
 
     attr_accessor :pipeline_id, :input_path, :output_path,
-      :verbose, :automatic_open, :json_output
+      :verbose, :automatic_open, :json_output, :latest_run
 
     def self.parse
       options = Pipely::Options.new
@@ -18,6 +18,10 @@ module Pipely
         opts.on("-p", "--pipeline-id PIPELINE_ID",
           "ID of a live pipeline to visualize with live statuses") do |id|
           options.pipeline_id = id
+        end
+
+        opts.on("-l", "--latest", "Graph only the latest run") do |latest|
+          options.latest_run = latest
         end
 
         opts.on("-i", "--input PATH",

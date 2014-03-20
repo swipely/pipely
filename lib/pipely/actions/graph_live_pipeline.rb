@@ -13,7 +13,11 @@ module Pipely
         live_pipeline = Pipely::LivePipeline.new(@options.pipeline_id)
         live_pipeline.print_runs_report
 
-        outfile = live_pipeline.render_graphs(@options.output_path)
+        outfile = if @options.latest_run
+          live_pipeline.render_latest_graph(@options.output_path)
+        else
+          live_pipeline.render_graphs(@options.output_path)
+        end
 
         if @options.json_output
           $stdout.puts({ :graph => outfile }.to_json)
