@@ -1,3 +1,5 @@
+require 'pipely/options'
+require 'pipely/actions'
 require 'pipely/definition'
 require 'pipely/graph_builder'
 require 'pipely/live_pipeline'
@@ -25,6 +27,7 @@ module Pipely
       S3Writer.new(filename).write(content)
     else
       graph.output( :png => filename )
+      filename
     end
   end
 

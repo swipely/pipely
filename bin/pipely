@@ -1,40 +1,16 @@
 #!/usr/bin/env ruby
 
 require 'pipely'
-require 'optparse'
 
-pipeline_id = input_path = output_path = nil
-verbose = automatic_open = false
+options = Pipely::Options.parse
 
-OptionParser.new do |opts|
-  opts.banner = "Usage: pipely [options]"
+if options.pipeline_id
+  Pipely::Actions::GraphLivePipeline.new(options).execute
 
-  opts.on("-p", "--pipeline-id PIPELINE_ID",
-          "ID of a live pipeline to visualize with live execution statuses") do |id|
-    pipeline_id = id
-  end
+elsif options.input_path
+  Pipely::Actions::GraphFilePipeline.new(options).execute
 
-  opts.on("-i", "--input PATH",
-          "Path to a JSON pipeline definition file to visualize") do |input|
-    input_path = input
-  end
+else
+  Pipely::Actions::ListLivePipelines.new(options).execute
 
-  opts.on("-o", "--output PATH",
-          "Local or S3 path to write PNG file(s) of graph visualization(s)") do |output|
-    output_path = output
-  end
-end.parse!
-
-if pipeline_id
-  live_pipeline = Pipely::LivePipeline.new(pipeline_id)
-  live_pipeline.print_runs_report
-  live_pipeline.render_graphs(output_path)
-
-elsif input_path
-  definition_json = File.open(input_path).read
-  output_base = File.basename(input_path,".*") + '.png'
-  output_file = output_path ? File.join(output_path, output_base) : output_base
-
-  puts "Generating #{output_file}"
-  Pipely.draw(definition_json, output_file)
 end
