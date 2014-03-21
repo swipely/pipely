@@ -1,18 +1,20 @@
 require 'pipely'
 
 describe Pipely do
-  let(:definition_json) { stub }
+  let(:definition_json) { double }
   let(:filename) { 'path/to/graph.png' }
-  let(:definition) { stub }
+  let(:definition) { double }
 
   before do
     Pipely::Definition.stub(:parse).with(definition_json) { definition }
   end
 
   describe '.draw' do
-    let(:components) { stub }
-    let(:definition) { stub(:definition, :components_for_graph => components) }
-    let(:graph) { stub(:graph, :output => nil) }
+    let(:components) { double }
+    let(:definition) {
+      double(:definition, :components_for_graph => components)
+    }
+    let(:graph) { double(:graph, :output => nil) }
 
     before do
       Pipely::GraphBuilder.any_instance.stub(:build).with(components) { graph }
@@ -25,7 +27,7 @@ describe Pipely do
     end
 
     context 'with component_attributes' do
-      let(:component_attributes) { stub }
+      let(:component_attributes) { double }
 
       it 'applies the component_attributes to the definition' do
         definition.should_receive(:apply_component_attributes).

@@ -2,7 +2,7 @@ require 'pipely/graph_builder'
 
 describe Pipely::GraphBuilder do
 
-  let(:graph) { stub(:graph) }
+  let(:graph) { double(:graph) }
 
   let(:node1) {
     Pipely::Component.new(
