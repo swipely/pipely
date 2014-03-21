@@ -6,7 +6,7 @@ module Pipely
   class FogClient < Struct.new(:pipeline_id)
 
     def definition
-      objects = Fog::AWS[:data_pipeline].get_pipeline_definition(pipeline_id)
+      objects = data_pipeline.get_pipeline_definition(pipeline_id)
 
       flattened_objects = []
 
@@ -61,7 +61,7 @@ module Pipely
   private
 
     def all_instances
-      c = Fog::AWS[:data_pipeline]
+      c = data_pipeline
 
       result = {}
       pipeline_objects = []
@@ -83,6 +83,13 @@ module Pipely
       end while (result['hasMoreResults'] && result['marker'])
 
       pipeline_objects
+    end
+
+    def data_pipeline
+      Fog::AWS::DataPipeline.new
+    rescue ArgumentError
+      $stderr.puts "#{self.class.name}: Falling back to IAM profile"
+      Fog::AWS::DataPipeline.new(use_iam_profile: true)
     end
 
   end
