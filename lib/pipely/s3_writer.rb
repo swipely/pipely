@@ -12,7 +12,6 @@ module Pipely
     end
 
     def directory
-      storage = Fog::Storage.new({ provider: 'AWS' })
       directory = storage.directories.detect{ |d| d.key == @host }
 
       directory or raise("Couldn't find S3 bucket '#{@host}'")
@@ -27,6 +26,15 @@ module Pipely
 
       remote_file.public_url
     end
+
+    private
+
+      def storage
+        Fog::Storage.new({ provider: 'AWS' })
+      rescue ArgumentError
+        $stderr.puts "#{self.class.name}: Falling back to IAM profile"
+        Fog::Storage.new({ provider: 'AWS', use_iam_profile: true })
+      end
 
   end
 

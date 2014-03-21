@@ -25,11 +25,18 @@ module Pipely
         ids = []
 
         begin
-          result = Fog::AWS[:data_pipeline].list_pipelines
+          result = data_pipeline.list_pipelines
           ids += result['pipelineIdList']
         end while (result['hasMoreResults'] && result['marker'])
 
         ids
+      end
+
+      def data_pipeline
+        Fog::AWS::DataPipeline.new
+      rescue ArgumentError
+        $stderr.puts "#{self.class.name}: Falling back to IAM profile"
+        Fog::AWS::DataPipeline.new(use_iam_profile: true)
       end
 
     end
