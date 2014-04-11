@@ -24,4 +24,20 @@ shared_examples "a renderable template" do |environment, config|
 
     expect(objects.count).to eq(distinct_ids.count)
   end
+
+  it "does not generate SnsAlert subjects that are over 100 characters" do
+    objects = JSON.parse(rendered_json)['objects']
+    sns_alarms = objects.select{|h| h['type'] == 'SnsAlarm'}
+
+    max_object_id = objects.map{|h| h['id']}.max_by(&:length)
+    max_attempt_id = max_object_id +  "_2014-01-01T00:00:00_Attempt=1"
+
+    sns_alarms.each do |h|
+      # NOTE: This currently only handles the interpolation we use at Swipely.
+      # TODO: Support local evaluation of any valid expression.
+      interpolated_subject = h['subject'].sub('#{node.name}', max_attempt_id)
+      expect( interpolated_subject ).to have_at_most(100).chars
+    end
+  end
+
 end
