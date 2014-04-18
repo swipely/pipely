@@ -7,7 +7,8 @@ module Pipely
   class Options
 
     attr_accessor :pipeline_id, :input_path, :output_path,
-      :verbose, :automatic_open, :json_output, :latest_run
+      :verbose, :automatic_open, :json_output, :latest_run,
+      :object_id, :list_log_paths
 
     def self.parse
       options = Pipely::Options.new
@@ -37,6 +38,18 @@ module Pipely
         opts.on("-j", "--json", "Write STDOUT formatted as JSON") do |json|
           options.json_output = json
         end
+
+        opts.on("-s", "--logs [OBJECT_ID]",
+          "Print s3 log paths for an object") do |obj_id|
+          options.object_id = obj_id
+          options.list_log_paths = true
+        end
+
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts
+          exit
+        end
+
       end.parse!
 
       options

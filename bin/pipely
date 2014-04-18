@@ -4,7 +4,10 @@ require 'pipely'
 
 options = Pipely::Options.parse
 
-if options.pipeline_id
+if options.pipeline_id && options.list_log_paths
+  Pipely::Actions::ListLogPaths.new(options).execute
+
+elsif options.pipeline_id
   Pipely::Actions::GraphLivePipeline.new(options).execute
 
 elsif options.input_path
