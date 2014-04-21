@@ -1,5 +1,5 @@
 require 'pp'
-require 'pipely/aws_client'
+require 'pipely/aws/data_pipeline/pipeline'
 
 module Pipely
   module Actions
@@ -14,7 +14,7 @@ module Pipely
 
       def execute
         if @options.object_id
-          $stdout.puts PP.pp(log_paths_for_object, "")
+          $stdout.puts PP.pp(log_paths_for_component, "")
         else
           $stdout.puts PP.pp(log_paths, "")
         end
@@ -22,16 +22,16 @@ module Pipely
 
     private
 
-      def log_paths
-        data_pipeline.get_log_paths
+      def log_paths_for_component
+        data_pipeline.log_paths_for_component(@options.object_id)
       end
 
-      def log_paths_for_object
-        data_pipeline.get_log_paths_for_object(@options.object_id)
+      def log_paths
+        data_pipeline.log_paths
       end
 
       def data_pipeline
-        Pipely::AWSClient.new(@options.pipeline_id)
+        Pipely::DataPipeline::Pipeline.new(@options.pipeline_id)
       end
 
     end
