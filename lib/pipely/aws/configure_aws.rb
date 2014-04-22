@@ -3,14 +3,9 @@ require 'aws-sdk'
 module Pipely
 
   # Use AWS SDK to get information about a pipeline
-  class AWSClient
+  module ConfigureAws
 
     class PipelyConfigNotFound < StandardError; end
-
-    def initialize
-      configure
-      @api = AWS::DataPipeline.new.client
-    end
 
     def configure
       config = load_config
@@ -35,4 +30,5 @@ module Pipely
     end
 
   end
+
 end

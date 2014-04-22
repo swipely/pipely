@@ -1,13 +1,13 @@
-require 'pipely/aws_client'
+require 'pipely/aws/data_pipeline/api'
 
 module Pipely
 
   module DataPipeline
 
-    class Instance < Pipely::AWSClient
+    class Instance
 
       def initialize(pipeline_id, component_id, instance_id)
-        super()
+        @api = Pipely::DataPipeline::Api.instance.client
 
         @id = instance_id
         @component_id = component_id
