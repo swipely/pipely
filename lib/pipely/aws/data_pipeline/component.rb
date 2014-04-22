@@ -1,4 +1,5 @@
 require 'pipely/aws/data_pipeline/instance'
+require 'pipely/aws/data_pipeline/attempt'
 require 'pipely/aws/data_pipeline/api'
 
 module Pipely
@@ -11,6 +12,29 @@ module Pipely
         @api = Pipely::DataPipeline::Api.instance.client
         @id = component_id
         @pipeline_id = pipeline_id
+      end
+
+      def attempts
+        query = {
+          selectors: [ {
+            field_name: '@componentParent',
+            operator: {
+              type: 'REF_EQ',
+              values: [@id]
+            }
+          } ]
+        }
+
+        @api.query_objects(
+          pipeline_id: @pipeline_id,
+          sphere: 'ATTEMPT',
+          query: query
+        )[:ids].map do |id|
+          Pipely::DataPipeline::Attempt.new(
+            @pipeline_id,
+            id
+          )
+        end
       end
 
       def active_instances

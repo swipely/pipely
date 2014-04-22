@@ -6,6 +6,8 @@ module Pipely
 
     class Instance
 
+      attr_accessor :id
+
       def initialize(pipeline_id, component_id, instance_id)
         @api = Pipely::DataPipeline::Api.instance.client
 
