@@ -16,8 +16,8 @@ module Pipely
         if @options.object_id
           $stdout.puts "\nLog paths for object:"
           $stdout.puts PP.pp(log_paths_for_component, "")
-          $stdout.puts "\nEMR step for object:"
-          $stdout.puts PP.pp(emr_step_for_component, "")
+          $stdout.puts "\nEMR steps for object:"
+          $stdout.puts PP.pp(emr_steps_for_component, "")
         else
           $stdout.puts PP.pp(log_paths, "")
         end
@@ -25,8 +25,8 @@ module Pipely
 
     private
 
-      def emr_step_for_component
-        data_pipeline.emr_step_for_component(@options.object_id)
+      def emr_steps_for_component
+        data_pipeline.emr_steps_for_component(@options.object_id)
       end
 
       def log_paths_for_component

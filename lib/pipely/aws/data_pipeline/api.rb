@@ -19,6 +19,7 @@ module Pipely
 
         @client = AWS::DataPipeline.new.client
       end
+
     end
 
   end

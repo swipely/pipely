@@ -1,4 +1,5 @@
 require 'pipely/aws/data_pipeline/api'
+require 'pipely/aws/data_pipeline/attempt'
 
 module Pipely
 
@@ -8,11 +9,10 @@ module Pipely
 
       attr_accessor :id
 
-      def initialize(pipeline_id, component_id, instance_id)
+      def initialize(pipeline_id, instance_id)
         @api = Pipely::DataPipeline::Api.instance.client
 
         @id = instance_id
-        @component_id = component_id
         @pipeline_id = pipeline_id
       end
 
@@ -27,6 +27,24 @@ module Pipely
         $stderr.puts ex.inspect
         $stderr.puts "Can't find log paths for #{@id}"
         nil
+      end
+
+      def attempts
+        query = {
+          selectors: [ {
+            field_name: '@instanceParent',
+            operator: {
+              type: 'REF_EQ',
+              values: [@id]
+            }
+          } ]
+        }
+
+        @api.query_objects(
+          pipeline_id: @pipeline_id,
+          sphere: 'ATTEMPT',
+          query: query
+        )[:ids].map { |id| Pipely::DataPipeline::Attempt.new(@pipeline_id, id) }
       end
 
       def evaluate_expression(expression)

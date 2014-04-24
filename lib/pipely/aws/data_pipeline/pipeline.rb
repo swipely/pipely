@@ -14,36 +14,11 @@ module Pipely
         @id = pipeline_id
       end
 
-      def emr_step_for_component(component_id)
-        instance = Component.new(@id, component_id).active_instances
-        component_hadoop_call = evaluate_expression('#{step}', instance.id)
+      def emr_steps_for_component(component_id)
+        attempts = Component.new(@id, component_id).active_instances.attempts
 
-        emr_step = @emr_api.step_details_for_cluster(
-          emr_cluster[:id]
-        ).find do |step|
-          cfg = step[:step][:config]
-          step_hadoop_call = cfg[:jar] + ',' + cfg[:args].join(',')
-          step_hadoop_call == component_hadoop_call
-        end.data[:step]
-
-        {
-          id: emr_step[:id],
-          name: emr_step[:name],
-          status: emr_step[:status]
-        }
-
-      rescue AWS::DataPipeline::Errors::InvalidRequestException
-        $stderr.puts "Couldn't find a corresponding EMR step for that component"
-      end
-
-      def emr_cluster
-        cluster_id = Pipely::DataPipeline::Component.new(
-          @id,
-          get_components_of_type('EmrCluster').first
-        ).active_instances.id
-
-        @emr_api.client.list_clusters.data[:clusters].find do |cluster|
-          cluster[:name] == @id + '_' + cluster_id
+        attempts.map do |attempt|
+          { attempt: attempt.id, emr_step: attempt.emr_step }
         end
       end
 
