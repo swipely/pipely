@@ -24,11 +24,26 @@ module Pipely
         )[:pipeline_objects].first
       end
 
+      def emr_step_logs
+        steps = @emr_api.describe_all_steps(emr_cluster[:id])
+        log_uri = emr_cluster[:log_uri]
+        step_id_for_this_attempt = emr_step[:id]
+
+        steps.reverse.each_with_index do |step, i|
+          log_suffix = "#{emr_cluster[:id]}/steps/#{i+1}/"
+
+          if step[:id] == step_id_for_this_attempt
+            return log_uri + log_suffix
+          end
+        end
+
+        nil
+      end
+
       def emr_step
         steps = @emr_api.find_emr_steps(emr_cluster[:id], hadoop_call)
 
         return steps.first if steps.size == 1
-
         steps.find { |step| error_message.include?(step[:name]) }
       end
 
@@ -41,8 +56,10 @@ module Pipely
       end
 
       def emr_cluster
-        cluster_name = @pipeline_id + '_' + resource_name
-        @emr_api.find_cluster_by_name(cluster_name)
+        @emr_cluster ||= (
+          cluster_name = @pipeline_id + '_' + resource_name
+          @emr_api.find_cluster_by_name(cluster_name)
+        )
       end
 
       def error_message

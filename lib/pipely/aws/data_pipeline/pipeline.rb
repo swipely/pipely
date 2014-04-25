@@ -15,11 +15,7 @@ module Pipely
       end
 
       def emr_steps_for_component(component_id)
-        attempts = Component.new(@id, component_id).active_instances.attempts
-
-        attempts.map do |attempt|
-          { attempt: attempt.id, emr_step: attempt.emr_step }
-        end
+        Component.new(@id, component_id).active_instances.emr_steps
       end
 
       def log_paths

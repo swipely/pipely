@@ -17,6 +17,15 @@ module Pipely
       end
 
       def log_paths
+        if type == 'ShellCommandActivity'
+          stderr_and_stdout
+        elsif type == 'EmrActivity'
+          # sleep inbetween attempts to avoid a throttling exception from AWS API
+          attempts.map { |attempt| logs = attempt.emr_step_logs; sleep 1 ; logs }
+        end
+      end
+
+      def stderr_and_stdout
         stderr, stdout = evaluate_expression(
           '#{stderr + "," + stdout}',
         ).split(',')
@@ -25,8 +34,17 @@ module Pipely
 
       rescue AWS::DataPipeline::Errors::InvalidRequestException => ex
         $stderr.puts ex.inspect
-        $stderr.puts "Can't find log paths for #{@id}"
+        $stderr.puts "No stderr and stdout fields for ShellCommandActivity #{@id}"
         nil
+      end
+
+      def type
+        @type ||= evaluate_expression('#{type}')
+      end
+
+      def emr_steps
+        return if type != 'EmrActivity'
+        attempts.map { |attempt| { attempt: attempt.id, emr_step: attempt.emr_step } }
       end
 
       def attempts
