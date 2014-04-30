@@ -1,16 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'pipely'
+require 'readline'
+require File.dirname(__FILE__) + '/../src/shell'
 
-options = Pipely::Options.parse
+app = Pipely::Shell.new(ARGV, Kernel)
+prompt = "pipely #{app.id} > "
 
-if options.pipeline_id
-  Pipely::Actions::GraphLivePipeline.new(options).execute
-
-elsif options.input_path
-  Pipely::Actions::GraphFilePipeline.new(options).execute
-
-else
-  Pipely::Actions::ListLivePipelines.new(options).execute
-
+loop do
+  app.interpret(Readline.readline(prompt))
 end
+
