@@ -59,7 +59,7 @@ module Pipely
       def run_task(verbose)
         with_bucket do |directory|
           step_files.each do |file_name|
-            dest = "#{s3_path}/#{File.basename(file_name)}"
+            dest = file_name.sub(/^#{local_path}/, s3_path)
             puts "uploading #{dest}" if verbose
             directory.files.create(key: dest, body: File.read(file_name))
           end
@@ -78,7 +78,9 @@ module Pipely
       end
 
       def step_files
-        FileList.new(File.join(local_path, "*"))
+        FileList.new(File.join(local_path, "**", "*")).reject { |fname|
+          File.directory?( fname )
+        }
       end
 
     end
