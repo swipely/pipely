@@ -7,7 +7,9 @@ module Pipely
     class RightNowScheduler
 
       def period
-        '12 hours'
+        # DataPipeline is soon releasing a run-once feature.
+        # TODO: Switch to that when available.
+        '1 year'
       end
 
       def start_date_time
