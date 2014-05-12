@@ -3,8 +3,8 @@ require 'pipely/build/right_now_scheduler'
 describe Pipely::Build::RightNowScheduler do
 
   describe "#period" do
-    it "is '12 hours'" do
-      expect(subject.period).to eq('12 hours')
+    it "is '1 year'" do
+      expect(subject.period).to eq('1 year')
     end
   end
 
