@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "unf"
   s.add_dependency "uuidtools"
   s.add_dependency "activesupport"
+  s.add_dependency "aws-sdk", "~> 1.38"
   s.add_development_dependency "rspec"
   s.add_development_dependency "cane"
   s.add_development_dependency "timecop"
