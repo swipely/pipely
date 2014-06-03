@@ -32,7 +32,9 @@ module Pipely
         @log.info("#{pipeline_ids.count} existing pipelines: #{pipeline_ids}")
 
         # Create new pipeline
-        created_pipeline_id = create_pipeline(pipeline_name, definition, pipeline_type)
+        created_pipeline_id = create_pipeline(pipeline_name,
+                                              definition,
+                                              pipeline_type)
         @log.info("Created pipeline id '#{created_pipeline_id}'")
 
         # Delete old pipelines
