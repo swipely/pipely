@@ -14,7 +14,7 @@ describe Pipely::Deploy::Client do
         and_return(existing_pipeline_ids)
 
       subject.should_receive(:create_pipeline).
-        with(pipeline_name, anything()).
+        with("#{ENV['USER']}:#{pipeline_name}", anything(), pipeline_name).
         and_return(new_pipeline_id)
 
       existing_pipeline_ids.each do |id|

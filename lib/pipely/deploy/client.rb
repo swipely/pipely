@@ -19,12 +19,22 @@ module Pipely
       end
 
       def deploy_pipeline(pipeline_name, definition)
+        pipeline_type = pipeline_name
+
+        pipeline_name = [
+          ('P' if ENV['env'] == 'production'),
+          ENV['USER'],
+          pipeline_name
+        ].compact.join(':')
+
         # Get a list of all existing pipelines
         pipeline_ids = existing_pipelines(pipeline_name)
         @log.info("#{pipeline_ids.count} existing pipelines: #{pipeline_ids}")
 
         # Create new pipeline
-        created_pipeline_id = create_pipeline(pipeline_name, definition)
+        created_pipeline_id = create_pipeline(pipeline_name,
+                                              definition,
+                                              pipeline_type)
         @log.info("Created pipeline id '#{created_pipeline_id}'")
 
         # Delete old pipelines
@@ -54,14 +64,19 @@ module Pipely
         ids
       end
 
-      def create_pipeline(pipeline_name, definition)
+      def create_pipeline(pipeline_name, definition, pipeline_type)
         definition_objects = JSON.parse(definition)['objects']
 
         unique_id = UUIDTools::UUID.random_create
 
         created_pipeline = @data_pipelines.pipelines.create(
           unique_id: unique_id,
-          name: pipeline_name
+          name: pipeline_name,
+          tags: {
+            "environment" => ENV['env'],
+            "creator" => ENV['USER'],
+            "type" => pipeline_type
+          }
         )
 
         created_pipeline.put(definition_objects)
