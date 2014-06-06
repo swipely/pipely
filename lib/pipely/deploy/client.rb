@@ -25,6 +25,8 @@ module Pipely
           pipeline_type
         ].compact.join(':')
 
+        tags = { "type" => pipeline_type }
+
         # Get a list of all existing pipelines
         pipeline_ids = existing_pipelines(pipeline_name)
         @log.info("#{pipeline_ids.count} existing pipelines: #{pipeline_ids}")
@@ -32,7 +34,7 @@ module Pipely
         # Create new pipeline
         created_pipeline_id = create_pipeline(pipeline_name,
                                               definition,
-                                              pipeline_type)
+                                              tags)
         @log.info("Created pipeline id '#{created_pipeline_id}'")
 
         # Delete old pipelines
@@ -62,7 +64,7 @@ module Pipely
         ids
       end
 
-      def create_pipeline(pipeline_name, definition, pipeline_type)
+      def create_pipeline(pipeline_name, definition, tags={})
         definition_objects = JSON.parse(definition)['objects']
 
         unique_id = UUIDTools::UUID.random_create
@@ -70,11 +72,7 @@ module Pipely
         created_pipeline = @data_pipelines.pipelines.create(
           unique_id: unique_id,
           name: pipeline_name,
-          tags: {
-            "environment" => ENV['env'],
-            "creator" => ENV['USER'],
-            "type" => pipeline_type
-          }
+          tags: default_tags.merge(tags)
         )
 
         created_pipeline.put(definition_objects)
@@ -85,6 +83,15 @@ module Pipely
 
       def delete_pipeline(pipeline_id)
         @data_pipelines.pipelines.get(pipeline_id).destroy
+      end
+
+    private
+
+      def default_tags
+        {
+          "environment" => ENV['env'],
+          "creator" => ENV['USER']
+        }
       end
 
     end
