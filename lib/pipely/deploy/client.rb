@@ -18,14 +18,14 @@ module Pipely
         @data_pipelines = Fog::AWS::DataPipeline.new
       end
 
-      def deploy_pipeline(pipeline_type, definition)
+      def deploy_pipeline(pipeline_basename, definition)
         pipeline_name = [
           ('P' if ENV['env'] == 'production'),
           ENV['USER'],
-          pipeline_type
+          pipeline_basename
         ].compact.join(':')
 
-        tags = { "type" => pipeline_type }
+        tags = { "basename" => pipeline_basename }
 
         # Get a list of all existing pipelines
         pipeline_ids = existing_pipelines(pipeline_name)

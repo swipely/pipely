@@ -6,7 +6,7 @@ describe Pipely::Deploy::Client do
   describe "#deploy_pipeline" do
     let(:existing_pipeline_ids) { ["pipeline-one", "pipeline-two"] }
     let(:new_pipeline_id) { "pipeline-three" }
-    let(:pipeline_name) { "MyPipeline" }
+    let(:pipeline_basename) { "MyPipeline" }
     let(:definition) { "pipeline json" }
 
     it "gets a list of pipelines, creates a new one, and deletes the others" do
@@ -14,9 +14,9 @@ describe Pipely::Deploy::Client do
         and_return(existing_pipeline_ids)
 
       subject.should_receive(:create_pipeline).
-        with("#{ENV['USER']}:#{pipeline_name}",
+        with("#{ENV['USER']}:#{pipeline_basename}",
              anything(),
-             hash_including( 'type' => pipeline_name )
+             hash_including( 'basename' => pipeline_basename )
         ).
         and_return(new_pipeline_id)
 
@@ -24,7 +24,7 @@ describe Pipely::Deploy::Client do
         subject.should_receive(:delete_pipeline).with(id)
       end
 
-      subject.deploy_pipeline(pipeline_name, definition)
+      subject.deploy_pipeline(pipeline_basename, definition)
     end
   end
 
