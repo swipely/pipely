@@ -8,6 +8,7 @@ module Pipely
       attr_reader :assets_bucket, :logs_bucket, :steps_bucket
 
       START_TIME = "\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}"
+      START_DATE = "\#{format(@scheduledStartTime,'YYYY-MM-dd')}"
 
       def initialize(options)
         @assets_bucket = options[:assets]
@@ -37,7 +38,7 @@ module Pipely
       end
 
       def s3_shared_asset_prefix
-        "s3://#{@assets_bucket}/#{@s3prefix}/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}"
+        "s3://#{@assets_bucket}/#{@s3prefix}/shared/#{START_DATE}"
       end
 
       def bucket_relative_s3_asset_prefix
