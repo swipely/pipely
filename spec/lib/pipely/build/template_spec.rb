@@ -80,6 +80,34 @@ describe Pipely::Build::Template do
         expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer")
       end
     end
+
+    context "given a jar file" do
+      it 'loads the file correctly' do
+        step = subject.streaming_hadoop_step(
+          :input => '/input_dir/',
+          :output => '/output_dir/',
+          :mapper => '/mapper.rb',
+          :reducer => 'org.apache.hadoop.mapred.lib.IdentityReducer',
+          :jar_file => 'filter.jar'
+        )
+
+        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer,-libjars=filter.jar")
+      end
+    end
+
+    context "given variables" do
+      it 'defines them correctly' do
+        step = subject.streaming_hadoop_step(
+          :input => '/input_dir/',
+          :output => '/output_dir/',
+          :mapper => '/mapper.rb',
+          :reducer => 'org.apache.hadoop.mapred.lib.IdentityReducer',
+          :defs => {'name' => 'value'}
+        )
+
+        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer,-D name=value")
+      end
+    end
   end
 
 end
