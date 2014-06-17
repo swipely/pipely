@@ -44,6 +44,10 @@ module Pipely
           parts += ['-cmdenv', "#{name}=#{value}"]
         end
 
+        (options[:java_props] || {}).each do |name, value|
+          parts += ['-D', "#{name}=#{value}"]
+        end
+
         parts.join(',')
       end
 
