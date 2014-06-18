@@ -51,12 +51,12 @@ module Pipely
           parts += ['-cacheFile', s3n_asset_path(cache_file)]
         end
 
-        Array(options[:jar_file]).each do |jar_file|
-          parts << "-libjars=#{jar_file}"
+        if jars = options[:lib_jars]
+          parts << "-libjars " + Array(jars).join(',')
         end
 
         (options[:defs] || {}).each do |name, value|
-          parts << "-D #{name}=#{value}"
+          parts += ['-D', "#{name}=#{value}"]
         end
 
         (options[:env] || {}).each do |name, value|
