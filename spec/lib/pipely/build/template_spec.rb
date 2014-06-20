@@ -81,17 +81,17 @@ describe Pipely::Build::Template do
       end
     end
 
-    context "given a jar file" do
+    context "given jar files" do
       it 'loads the file correctly' do
         step = subject.streaming_hadoop_step(
           :input => '/input_dir/',
           :output => '/output_dir/',
           :mapper => '/mapper.rb',
           :reducer => 'org.apache.hadoop.mapred.lib.IdentityReducer',
-          :lib_jars => 'filter.jar'
+          :lib_jars => [ 'filter.jar', 'filter2.jar' ],
         )
 
-        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer,-libjars filter.jar")
+        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-libjars,filter.jar,-libjars,filter2.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer")
       end
     end
 
@@ -105,7 +105,7 @@ describe Pipely::Build::Template do
           :defs => {'name' => 'value'}
         )
 
-        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer,-D,name=value")
+        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-D,name=value,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer")
       end
     end
   end
