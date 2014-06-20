@@ -24,6 +24,14 @@ module Pipely
       def streaming_hadoop_step(options)
         parts = [ '/home/hadoop/contrib/streaming/hadoop-streaming.jar' ]
 
+        if jars = options[:lib_jars]
+          parts += Array(jars).map { |jar| ['-libjars', "#{jar}"] }.flatten
+        end
+
+        (options[:defs] || {}).each do |name, value|
+          parts += ['-D', "#{name}=#{value}"]
+        end
+
         Array(options[:input]).each do |input|
           # HACK: We want a consistent namespace for our S3 paths, but in order
           # to support existing pipelines while we transition we need to allow
