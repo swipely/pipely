@@ -13,10 +13,6 @@ module Pipely
         "#{s3n_asset_prefix if '/' == path[0]}#{path}"
       end
 
-      def s3n_shared_asset_path(path)
-        "#{s3n_shared_asset_prefix if '/' == path[0]}#{path}"
-      end
-
       def s3n_step_path(path)
         "#{s3n_step_prefix if '/' == path[0]}#{path}"
       end
@@ -33,14 +29,7 @@ module Pipely
         end
 
         Array(options[:input]).each do |input|
-          # HACK: We want a consistent namespace for our S3 paths, but in order
-          # to support existing pipelines while we transition we need to allow
-          # the client to specify which form its input path follows.
-          if options[:input_shared]
-            parts += [ '-input', s3n_shared_asset_path(input) ]
-          else
-            parts += [ '-input', s3n_asset_path(input) ]
-          end
+          parts += [ '-input', s3n_asset_path(input) ]
         end
 
         Array(options[:output]).each do |output|
