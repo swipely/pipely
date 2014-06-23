@@ -35,10 +35,6 @@ describe Pipely::Build::S3PathBuilder do
     should eq("s3://asset-bucket/run-prefix/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}")
   }
 
-  its(:s3n_shared_asset_prefix) {
-    should eq("s3n://asset-bucket/run-prefix/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}")
-  }
-
   describe "#to_hash" do
     it 'includes the necessary keys for supplying config to a Template' do
       expect(subject.to_hash.keys).to match_array([
@@ -48,7 +44,6 @@ describe Pipely::Build::S3PathBuilder do
         :s3_asset_prefix,
         :s3n_asset_prefix,
         :s3_shared_asset_prefix,
-        :s3n_shared_asset_prefix,
         :bucket_relative_s3_asset_prefix,
       ])
     end

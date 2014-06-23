@@ -1,3 +1,3 @@
 module Pipely
-  VERSION = "0.4.6" unless defined?(::Pipely::VERSION)
+  VERSION = "0.4.7" unless defined?(::Pipely::VERSION)
 end

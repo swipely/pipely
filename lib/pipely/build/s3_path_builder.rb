@@ -41,10 +41,6 @@ module Pipely
         "s3://#{@assets_bucket}/#{@s3prefix}/shared/#{START_DATE}"
       end
 
-      def s3n_shared_asset_prefix
-        "s3n://#{@assets_bucket}/#{@s3prefix}/shared/#{START_DATE}"
-      end
-
       def bucket_relative_s3_asset_prefix
         "#{@s3prefix}/#{START_TIME}"
       end
@@ -57,7 +53,6 @@ module Pipely
           :s3_asset_prefix => s3_asset_prefix,
           :s3n_asset_prefix => s3n_asset_prefix,
           :s3_shared_asset_prefix => s3_shared_asset_prefix,
-          :s3n_shared_asset_prefix => s3n_shared_asset_prefix,
           :bucket_relative_s3_asset_prefix => bucket_relative_s3_asset_prefix,
         }
       end
