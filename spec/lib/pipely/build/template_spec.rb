@@ -68,6 +68,20 @@ describe Pipely::Build::Template do
       end
     end
 
+    context "given an outputformat" do
+      it 'points to the outputformat class (not as an S3 URL)' do
+        step = subject.streaming_hadoop_step(
+          :input => '/input_dir/',
+          :output => '/output_dir/',
+          :outputformat => 'com.swipely.foo.outputformat',
+          :mapper => '/mapper.rb',
+          :reducer => 'org.apache.hadoop.mapred.lib.IdentityReducer'
+        )
+
+        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-outputformat,com.swipely.foo.outputformat,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer")
+      end
+    end
+
     context "given the IdentityReducer" do
       it 'points to the IdentityReducer correctly (not as an S3 URL)' do
         step = subject.streaming_hadoop_step(

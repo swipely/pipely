@@ -36,6 +36,10 @@ module Pipely
           parts += ['-output', s3_asset_path(output) ]
         end
 
+        if options[:outputformat]
+          parts += ['-outputformat', options[:outputformat] ]
+        end
+
         Array(options[:mapper]).each do |mapper|
           parts += ['-mapper', s3n_step_path(mapper) ]
         end
