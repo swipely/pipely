@@ -1,6 +1,8 @@
 require 'rake'
 require 'rake/tasklib'
 require 'pipely'
+require 'json'
+require 'fileutils'
 
 module Pipely
   module Tasks
@@ -55,8 +57,19 @@ module Pipely
       def run_task(verbose)
         puts "Generating #{target_filename}" if verbose
 
+        dirname = File.dirname(target_filename)
+        unless File.directory?(dirname)
+          FileUtils.mkdir_p(dirname)
+        end
+
+        json = definition.to_json
+
+        if ENV['PRETTY']
+          json = JSON.pretty_generate(JSON.parse(json))
+        end
+
         File.open(target_filename, 'w') do |file|
-          file.write(definition.to_json)
+          file.write(json)
         end
       end
 
