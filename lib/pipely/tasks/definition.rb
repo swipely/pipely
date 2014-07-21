@@ -57,14 +57,9 @@ module Pipely
       def run_task(verbose)
         puts "Generating #{target_filename}" if verbose
 
-        dirname = File.dirname(target_filename)
-        unless File.directory?(dirname)
-          FileUtils.mkdir_p(dirname)
-        end
-
         json = definition.to_json
 
-        if ENV['PRETTY']
+        unless ENV['UGLY']
           json = JSON.pretty_generate(JSON.parse(json))
         end
 
