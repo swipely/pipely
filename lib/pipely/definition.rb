@@ -69,4 +69,3 @@ module Pipely
   end
 
 end
-
