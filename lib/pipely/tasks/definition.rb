@@ -2,7 +2,6 @@ require 'rake'
 require 'rake/tasklib'
 require 'pipely'
 require 'json'
-require 'fileutils'
 
 module Pipely
   module Tasks
