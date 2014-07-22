@@ -33,6 +33,9 @@ Coming soon.
     rake graph             # Graphs the full pipeline definition using Graphviz
     rake upload_steps      # Upload Data Pipeline steps to S3
 
+In order to run these tasks, you must have an aws-sdk credentials file.
+This can be created by running `aws cli configure`, as described [in the aws-sdk docs](http://docs.aws.amazon.com/AWSSdkDocsRuby/latest/DeveloperGuide/ruby-dg-setup.html#set-up-creds).
+
 ### Command-line Interface
 
 (If you used the Gemfile install, prefix the below commands with `bundle exec`.)

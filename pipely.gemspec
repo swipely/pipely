@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rake"
   s.add_dependency "virtus", "~>1.0.0"
   s.add_dependency "fog", "~>1.23.0"
+  s.add_dependency "aws-sdk", "~>1.48"
   s.add_dependency "unf"
   s.add_dependency "uuidtools"
   s.add_dependency "activesupport"
