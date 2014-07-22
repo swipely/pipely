@@ -1,4 +1,17 @@
+# Note: We are in the process of migrating from Fog to aws-sdk for communicating
+# with the Data Pipeline API.  aws-sdk offers several benefits, such as:
+#
+# * Built-in automated exponential back-off, to avoid hitting rate limits.
+# * Working pagination of ListPipelines responses.
+# * Authentication using IAM resource roles.
+# * Faster installation.
+#
+# On the downside, aws-sdk does not yet support tagging of pipelines.  We can
+# not yet port pipely entirely away from Fog until this is resolved, so we will
+# temporarily require both libraries.
+
 require 'fog'
+require 'aws-sdk'
 require 'logger'
 require 'tempfile'
 require 'uuidtools'
@@ -16,6 +29,7 @@ module Pipely
       def initialize(log=nil)
         @log = log || Logger.new(STDOUT)
         @data_pipelines = Fog::AWS::DataPipeline.new
+        @aws = AWS::DataPipeline.new.client
       end
 
       def deploy_pipeline(pipeline_basename, definition)
@@ -51,15 +65,17 @@ module Pipely
 
       def existing_pipelines(pipeline_name)
         ids = []
+        marker = nil
 
         begin
-          result = Fog::AWS[:data_pipeline].list_pipelines
+          options = marker ? { marker: marker } : {}
+          result = @aws.list_pipelines(options)
 
-          ids += result['pipelineIdList'].
-                   select { |p| p['name'] == pipeline_name }.
-                   map { |p| p['id'] }
+          ids += result[:pipeline_id_list].
+                   select { |p| p[:name] == pipeline_name }.
+                   map { |p| p[:id] }
 
-        end while (result['hasMoreResults'] && result['marker'])
+        end while (result[:has_more_results] && marker = result[:marker])
 
         ids
       end
