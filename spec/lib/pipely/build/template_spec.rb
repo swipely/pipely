@@ -116,10 +116,10 @@ describe Pipely::Build::Template do
           :output => '/output_dir/',
           :mapper => '/mapper.rb',
           :reducer => 'org.apache.hadoop.mapred.lib.IdentityReducer',
-          :defs => {'name' => 'value'}
+          :defs => {'mapred.text.key.partitioner.options' => '-k1,1'}
         )
 
-        expect(step).to eq("/home/hadoop/contrib/streaming/hadoop-streaming.jar,-D,name=value,-input,s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/input_dir/,-output,s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer")
+        expect(step).to eq('/home/hadoop/contrib/streaming/hadoop-streaming.jar,-D,mapred.text.key.partitioner.options=-k1\\,1,-input,s3n://asset-bucket/run-prefix/#{format(@scheduledStartTime,\'YYYY-MM-dd_HHmmss\')}/input_dir/,-output,s3://asset-bucket/run-prefix/#{format(@scheduledStartTime,\'YYYY-MM-dd_HHmmss\')}/output_dir/,-mapper,s3n://step-bucket/run-prefix/mapper.rb,-reducer,org.apache.hadoop.mapred.lib.IdentityReducer')
       end
     end
   end

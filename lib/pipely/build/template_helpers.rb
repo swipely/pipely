@@ -25,7 +25,7 @@ module Pipely
         end
 
         (options[:defs] || {}).each do |name, value|
-          parts += ['-D', "#{name}=#{value}"]
+          parts += ['-D', "#{name}=#{value}".gsub(',', "\\,")]
         end
 
         Array(options[:input]).each do |input|
