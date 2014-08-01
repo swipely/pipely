@@ -40,6 +40,10 @@ module Pipely
           parts += ['-outputformat', options[:outputformat] ]
         end
 
+        if options[:partitioner]
+          parts += ['-partitioner', options[:partitioner] ]
+        end
+
         Array(options[:mapper]).each do |mapper|
           parts += ['-mapper', s3n_step_path(mapper) ]
         end
