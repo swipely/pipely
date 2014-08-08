@@ -52,7 +52,6 @@ module Pipely
 # #{filename}
 hadoop fs -copyToLocal #{s3_path} /home/hadoop/#{filename}
 gem install --local /home/hadoop/#{filename} --no-ri --no-rdoc
-rbenv rehash"
           ]
         end
 

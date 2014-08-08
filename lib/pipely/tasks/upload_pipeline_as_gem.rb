@@ -35,10 +35,11 @@ module Pipely
       end
 
       def run_task(verbose)
-        storage = Fog::Storage.new({ provider: 'AWS' })
+        @storage = Fog::Storage.new({ provider: 'AWS' })
+        @directory = @storage.directories.get(@bucket_name)
 
         bootstrap_helper =
-          Pipely::Deploy::Bootstrap.new(storage, @bucket_name, @s3_gems_path)
+          Pipely::Deploy::Bootstrap.new(@storage, @bucket_name, @s3_gems_path)
         bootstrap_helper.build_and_upload_gems
 
         # erb context
@@ -61,11 +62,10 @@ module Pipely
 
       private
       def upload_to_s3( upload_filename, body )
-        directory = storage.directories.get(@bucket_name)
 
         s3_dest = File.join(@s3_steps_path, upload_filename)
         puts "uploading #{s3_dest}" if verbose
-        directory.files.create(
+        @directory.files.create(
           key: s3_dest,
           body: body)
       end
