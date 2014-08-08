@@ -1,5 +1,3 @@
-require 'rubygems/package'
-
 module Pipely
   module Deploy
 
@@ -32,7 +30,10 @@ module Pipely
 
           # Build pipeline gem
           @project_spec = Gem::Specification::load(gem_spec)
-          project_gem_file = Gem::Package.build(@project_spec)
+          # build the gem
+          project_gem_file =
+            `gem build ./pipely.gemspec`.scan(
+              /File:(.+.gem)$/).flatten.first.strip
           project_gem_name = @project_spec.name
           upload_gem(project_gem_file)
         end
