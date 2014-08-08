@@ -45,7 +45,10 @@ module Pipely
       end
 
       def context
-        BootstrapContext.new(@gem_files)
+        BootstrapContext.new(
+          @gem_files.map{ |file|
+            File.join("s3://", @bucket_name, gem_s3_path(file) )
+          } )
       end
 
       private
@@ -102,10 +105,9 @@ module Pipely
 
         @gem_files.each do |gem_file|
           filename = File.basename(gem_file)
-          s3_path = File.join("s3://", @bucket_name, gem_s3_path(gem_file))
           script << %Q[
 # #{filename}
-hadoop fs -copyToLocal #{s3_path} /home/hadoop/#{filename}
+hadoop fs -copyToLocal #{gem_file} /home/hadoop/#{filename}
 gem install --local /home/hadoop/#{filename} --no-ri --no-rdoc
           ]
         end
