@@ -49,6 +49,10 @@ module Pipely
       it "should have gem_files" do
         expect(context.gem_files).to_not be_nil
       end
+
+      it "should be an s3 url" do
+        expect(context.gem_files.first).to match( /^s3:\/\/#{subject.bucket_name}\/#{subject.s3_gems_path}/ )
+      end
     end
 
   end
