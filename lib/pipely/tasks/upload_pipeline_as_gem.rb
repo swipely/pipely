@@ -38,14 +38,7 @@ module Pipely
         @storage = Fog::Storage.new({ provider: 'AWS' })
         @directory = @storage.directories.get(@bucket_name)
 
-        bootstrap_helper =
-          Pipely::Deploy::Bootstrap.new(@storage, @bucket_name, @s3_gems_path)
-        bootstrap_helper.build_and_upload_gems
-
-        # erb context
-        context = {
-          bootstrap: bootstrap_helper
-        }
+        context = build_bootstrap_context
 
         Dir.glob("templates/*.erb").each do |erb_file|
           upload_filename = File.basename(erb_file).sub( /\.erb$/, '' )
@@ -61,6 +54,17 @@ module Pipely
       end
 
       private
+      def build_bootstrap_context
+        bootstrap_helper =
+          Pipely::Deploy::Bootstrap.new(@storage, @bucket_name, @s3_gems_path)
+        bootstrap_helper.build_and_upload_gems
+
+        # erb context
+        {
+          bootstrap: bootstrap_helper.context
+        }
+      end
+
       def upload_to_s3( upload_filename, body )
 
         s3_dest = File.join(@s3_steps_path, upload_filename)

@@ -9,6 +9,7 @@ module Pipely
       attr_reader :bucket_name
       attr_reader :s3_gems_path
       attr_reader :project_spec
+      attr_reader :gem_files
 
       def initialize(storage, bucket_name, s3_gems_path)
         @bucket_name = bucket_name
@@ -42,20 +43,8 @@ module Pipely
         @gem_files << project_gem_file if @project_spec
       end
 
-      def install_gems_script
-        script = ""
-
-        @gem_files.each do |gem_file|
-          filename = File.basename(gem_file)
-          s3_path = File.join("s3://", @bucket_name, gem_s3_path(gem_file))
-          script << %Q[
-# #{filename}
-hadoop fs -copyToLocal #{s3_path} /home/hadoop/#{filename}
-gem install --local /home/hadoop/#{filename} --no-ri --no-rdoc
-          ]
-        end
-
-        script
+      def context
+        BootstrapContext.new(@gem_files)
       end
 
       private
@@ -96,6 +85,31 @@ gem install --local /home/hadoop/#{filename} --no-ri --no-rdoc
         end
 
         gem_files
+      end
+    end
+
+    # Context passed to the erb templates
+    class BootstrapContext
+      attr_reader :gem_files
+
+      def initialize(gem_files)
+        @gem_files = gem_files
+      end
+
+      def install_gems_script
+        script = ""
+
+        @gem_files.each do |gem_file|
+          filename = File.basename(gem_file)
+          s3_path = File.join("s3://", @bucket_name, gem_s3_path(gem_file))
+          script << %Q[
+# #{filename}
+hadoop fs -copyToLocal #{s3_path} /home/hadoop/#{filename}
+gem install --local /home/hadoop/#{filename} --no-ri --no-rdoc
+          ]
+        end
+
+        script
       end
     end
   end

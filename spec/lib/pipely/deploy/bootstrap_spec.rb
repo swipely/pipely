@@ -37,14 +37,17 @@ module Pipely
            File.join "tmp/test_bucket/test_path/gems", spec.file_name )
         end
       end
+    end
 
-      context "provides" do
-        describe "#install_gems_script" do
-          it "should create script for installing gems" do
-            expect(subject.install_gems_script).to_not be_nil
-            pending "assert that script has all the gems in it"
-          end
-        end
+    describe "#context" do
+      let(:context) { subject.context}
+
+      before do
+        subject.build_and_upload_gems
+      end
+
+      it "should have gem_files" do
+        expect(context.gem_files).to_not be_nil
       end
     end
 
