@@ -32,7 +32,7 @@ module Pipely
           @project_spec = Gem::Specification::load(gem_spec)
           # build the gem
           project_gem_file =
-            `gem build ./pipely.gemspec`.scan(
+            `gem build ./#{gem_spec}`.scan(
               /File:(.+.gem)$/).flatten.first.strip
           project_gem_name = @project_spec.name
           upload_gem(project_gem_file)
