@@ -33,8 +33,11 @@ module Pipely
 
       it "should upload gems" do
         Bundler.definition.specs_for([:default]).each do |spec|
-          expect(File).to exist(
-           File.join "tmp/test_bucket/test_path/gems", spec.file_name )
+          # Ignore bundler, since it could be a system installed gem (travis) without a cache file
+          unless spec.file_name =~ /bundler/
+            expect(File).to exist(
+              File.join "tmp/test_bucket/test_path/gems", spec.file_name )
+          end
         end
       end
     end
