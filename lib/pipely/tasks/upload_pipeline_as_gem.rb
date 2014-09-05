@@ -12,6 +12,7 @@ module Pipely
       attr_accessor :bucket_name
       attr_accessor :s3_steps_path
       attr_accessor :s3_gems_path
+      attr_accessor :config
 
       def initialize(*args, &task_block)
         setup_ivars(args)
@@ -61,7 +62,8 @@ module Pipely
 
         # erb context
         {
-          bootstrap: bootstrap_helper.context
+          bootstrap: bootstrap_helper.context,
+          config: config
         }
       end
 
