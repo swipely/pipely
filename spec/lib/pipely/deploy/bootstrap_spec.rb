@@ -33,7 +33,8 @@ module Pipely
 
       it "should upload gems" do
         Bundler.definition.specs_for([:default]).each do |spec|
-          # Ignore bundler, since it could be a system installed gem (travis) without a cache file
+          # Ignore bundler, since it could be a system installed gem (travis)
+          # without a cache file
           unless spec.file_name =~ /bundler/
             expect(File).to exist(
               File.join "tmp/test_bucket/test_path/gems", spec.file_name )
@@ -54,7 +55,9 @@ module Pipely
       end
 
       it "should be an s3 url" do
-        expect(context.gem_files.first).to match( /^s3:\/\/#{subject.bucket_name}\/#{subject.s3_gems_path}/ )
+        expect(context.gem_files.first).to(
+          match( /^s3:\/\/#{subject.bucket_name}\/#{subject.s3_gems_path}/ )
+        )
       end
     end
 
