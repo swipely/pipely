@@ -9,13 +9,10 @@ module Pipely
       attr_reader :project_spec
       attr_reader :gem_files
 
-      def initialize(storage, bucket_name, s3_gems_path)
-        @bucket_name = bucket_name
+      def initialize(s3_bucket, s3_gems_path)
+        @s3_bucket = s3_bucket
+        @bucket_name = s3_bucket.name
         @s3_gems_path = s3_gems_path
-
-        unless @directory = storage.directories.get(@bucket_name)
-          raise "Couldn't upload to S3 bucket #{@bucket_name}"
-        end
       end
 
       # Builds the project's gem from gemspec, uploads the gem to s3, and
@@ -47,7 +44,7 @@ module Pipely
       def context
         BootstrapContext.new(
           @gem_files.map{ |file|
-            File.join("s3://", @bucket_name, gem_s3_path(file) )
+            File.join("s3://", @s3_bucket.name, gem_s3_path(file) )
           } )
       end
 
@@ -58,14 +55,12 @@ module Pipely
       end
 
       def s3_gem_exists?( gem_file )
-        !@directory.files.get(gem_s3_path(gem_file)).nil?
+        !@s3_bucket.objects[gem_s3_path(gem_file)].nil?
       end
 
       def upload_gem( gem_file )
         puts "uploading #{gem_file} to #{gem_s3_path(gem_file)}"
-        @directory.files.create(
-          key: gem_s3_path(gem_file),
-          body: File.open(gem_file) )
+        @s3_bucket.objects[gem_s3_path(gem_file)].write(File.open(gem_file))
       end
 
       def upload_gems_from_bundler(project_gem_name)

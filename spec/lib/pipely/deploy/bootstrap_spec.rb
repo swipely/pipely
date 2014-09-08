@@ -7,15 +7,23 @@ require 'fileutils'
 
 module Pipely
   describe Deploy::Bootstrap do
-    subject { Deploy::Bootstrap.new storage, 'test_bucket', 'test_path/gems' }
-    let(:storage) { Fog::Storage.new provider: 'local', local_root: 'tmp'  }
+    subject { described_class.new s3_bucket, 'test_path/gems' }
+    let(:s3_bucket) { s3_client.buckets['a-test-bucket']}
+    let(:s3_client) do
+      double("s3-client", buckets: {
+        'a-test-bucket' => double("bucket",
+          name: 'a-test-bucket',
+          objects: double("objects", "[]" => double("s3_object", write: true))
+        )
+      })
+    end
 
     before do
-      FileUtils.mkdir_p 'tmp/test_bucket'
+      AWS.stub!
     end
 
     it "should have bucket name" do
-      expect(subject.bucket_name).to eql 'test_bucket'
+      expect(subject.bucket_name).to eql 'a-test-bucket'
     end
 
     it "should have a s3 gems path" do

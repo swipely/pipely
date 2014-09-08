@@ -1,4 +1,5 @@
 require 'rake'
+require 'aws'
 require 'pipely/deploy/bootstrap'
 
 module Pipely
@@ -36,9 +37,6 @@ module Pipely
       end
 
       def run_task(verbose)
-        @storage = Fog::Storage.new({ provider: 'AWS' })
-        @directory = @storage.directories.get(@bucket_name)
-
         context = build_bootstrap_context
 
         Dir.glob("templates/*.erb").each do |erb_file|
@@ -55,9 +53,14 @@ module Pipely
       end
 
       private
+      def s3_bucket
+          s3 = AWS::S3.new
+          s3.buckets[@bucket_name]
+      end
+
       def build_bootstrap_context
         bootstrap_helper =
-          Pipely::Deploy::Bootstrap.new(@storage, @bucket_name, @s3_gems_path)
+          Pipely::Deploy::Bootstrap.new(s3_bucket, @s3_gems_path)
         bootstrap_helper.build_and_upload_gems
 
         # erb context

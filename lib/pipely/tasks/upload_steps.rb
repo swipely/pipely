@@ -1,6 +1,5 @@
 require 'rake'
 require 'rake/tasklib'
-require 'fog'
 
 module Pipely
   module Tasks
@@ -57,11 +56,11 @@ module Pipely
       end
 
       def run_task(verbose)
-        with_bucket do |directory|
+        with_bucket do |bucket|
           step_files.each do |file_name|
             dest = file_name.sub(/^#{local_path}/, s3_path)
             puts "uploading #{dest}" if verbose
-            directory.files.create(key: dest, body: File.read(file_name))
+            bucket[dest].write(File.read(file_name))
           end
         end
       end
@@ -69,9 +68,11 @@ module Pipely
     private
 
       def with_bucket
-        storage = Fog::Storage.new({ provider: 'AWS' })
-        if directory = storage.directories.detect{ |d| d.key == s3_bucket_name }
-          yield(directory)
+        s3 = AWS::S3.new
+        bucket = s3.buckets[s3_bucket_name]
+
+        if bucket.exists?
+          yield(bucket)
         else
           raise "Couldn't find S3 bucket '#{s3_bucket_name}'"
         end
