@@ -35,19 +35,28 @@ module Pipely
       end
 
       it "should upload gems" do
-        gems = Bundler.definition.specs_for([:default]).map do |spec|
+        specs = Bundler.definition.specs_for([:default])
+
+        gems = specs.map(&:file_name).reject do |g|
           # Ignore bundler, since it could be a system installed gem (travis)
           # without a cache file
-          spec.file_name
-        end.compact
+          g.match(/^json-\d+\.\d+\.\d+\.gem$/) or
+            g.match(/^bundler-\d+\.\d+\.\d+\.gem$/)
+        end
 
         objects = double(:objects)
+        s3_object = double('s3_object', write: nil)
+
+        allow(objects).to receive(:[]) { s3_object }
+
         gems.each do |gem|
-          expect(objects).to receive(:[]).with(subject.gem_s3_path(gem)).and_return(double('s3_object', write: nil))
+          expect(objects).to receive(:[]).with(subject.gem_s3_path(gem))
         end
+
         expect(s3_bucket).to(receive(:objects)).
-          exactly(gems.size).times.
-            and_return(objects)
+          at_least(gems.size).times.
+          at_most(gems.size + 1).times. # allow for Bundler
+          and_return(objects)
 
         build_and_upload_gems
       end
