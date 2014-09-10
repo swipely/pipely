@@ -48,12 +48,12 @@ module Pipely
           } )
       end
 
-      private
       def gem_s3_path(gem_file)
         filename = File.basename(gem_file)
         File.join(@s3_gems_path, filename)
       end
 
+      private
       def s3_gem_exists?( gem_file )
         !@s3_bucket.objects[gem_s3_path(gem_file)].nil?
       end

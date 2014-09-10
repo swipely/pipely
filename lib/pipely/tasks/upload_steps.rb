@@ -60,7 +60,7 @@ module Pipely
           step_files.each do |file_name|
             dest = file_name.sub(/^#{local_path}/, s3_path)
             puts "uploading #{dest}" if verbose
-            bucket[dest].write(File.read(file_name))
+            bucket.objects[dest].write(File.read(file_name))
           end
         end
       end

@@ -74,9 +74,7 @@ module Pipely
 
         s3_dest = File.join(@s3_steps_path, upload_filename)
         puts "uploading #{s3_dest}" if verbose
-        @directory.files.create(
-          key: s3_dest,
-          body: body)
+        s3_bucket.objects[s3_dest].write(body)
       end
     end
   end

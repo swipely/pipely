@@ -7,19 +7,10 @@ require 'fileutils'
 
 module Pipely
   describe Deploy::Bootstrap do
-    subject { described_class.new s3_bucket, 'test_path/gems' }
-    let(:s3_bucket) { s3_client.buckets['a-test-bucket']}
-    let(:s3_client) do
-      double("s3-client", buckets: {
-        'a-test-bucket' => double("bucket",
-          name: 'a-test-bucket',
-          objects: double("objects", "[]" => double("s3_object", write: true))
-        )
-      })
-    end
-
-    before do
-      AWS.stub!
+    subject { described_class.new(s3_bucket, 'test_path/gems') }
+    let(:s3_bucket) do
+       s3 = AWS::S3.new
+       s3.buckets['a-test-bucket']
     end
 
     it "should have bucket name" do
@@ -31,23 +22,34 @@ module Pipely
     end
 
     describe "#build_and_upload_gems" do
-      before do
-        subject.build_and_upload_gems
+      let(:build_and_upload_gems) do
+        VCR.use_cassette('build_and_upload_gems') do
+          subject.build_and_upload_gems
+        end
       end
 
       it "should create project gem" do
-        File.exists? subject.project_spec.file_name
+        build_and_upload_gems
+
+        expect(File).to exist(subject.project_spec.file_name)
       end
 
       it "should upload gems" do
-        Bundler.definition.specs_for([:default]).each do |spec|
+        gems = Bundler.definition.specs_for([:default]).map do |spec|
           # Ignore bundler, since it could be a system installed gem (travis)
           # without a cache file
-          unless spec.file_name =~ /bundler/
-            expect(File).to exist(
-              File.join "tmp/test_bucket/test_path/gems", spec.file_name )
-          end
+          spec.file_name
+        end.compact
+
+        objects = double(:objects)
+        gems.each do |gem|
+          expect(objects).to receive(:[]).with(subject.gem_s3_path(gem)).and_return(double('s3_object', write: nil))
         end
+        expect(s3_bucket).to(receive(:objects)).
+          exactly(gems.size).times.
+            and_return(objects)
+
+        build_and_upload_gems
       end
     end
 
@@ -55,7 +57,9 @@ module Pipely
       let(:context) { subject.context}
 
       before do
-        subject.build_and_upload_gems
+        VCR.use_cassette('build_and_upload_gems') do
+          subject.build_and_upload_gems
+        end
       end
 
       it "should have gem_files" do
