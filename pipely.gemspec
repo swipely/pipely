@@ -22,9 +22,12 @@ Gem::Specification.new do |s|
   s.add_dependency "unf"
   s.add_dependency "uuidtools"
   s.add_dependency "activesupport"
+  s.add_dependency "erubis"
   s.add_development_dependency "rspec", "~>2.14.0"
   s.add_development_dependency "cane"
   s.add_development_dependency "timecop"
+  s.add_development_dependency "vcr"
+  s.add_development_dependency "webmock"
 
   s.executables << 'pipely'
 end

@@ -1,0 +1,47 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://a-test-bucket.s3.amazonaws.com/test_path/gems/pipely-0.6.2.gem
+    body:
+      encoding: UTF-8
+      string: !binary |-
+        bWV0YWRhdGEuZ3oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      Content-Length:
+      - '21504'
+      User-Agent:
+      - aws-sdk-ruby/1.50.0 ruby/2.0.0 x86_64-darwin13.3.0
+      Date:
+      - Wed, 10 Sep 2014 00:58:35 GMT
+      Authorization:
+      - AWS 123
+      Accept:
+      - '*/*'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - 123
+      X-Amz-Request-Id:
+      - 123
+      Date:
+      - Wed, 10 Sep 2014 00:58:36 GMT
+      Etag:
+      - '"123"'
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Wed, 10 Sep 2014 00:58:35 GMT
+recorded_with: VCR 2.9.2

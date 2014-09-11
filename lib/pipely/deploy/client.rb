@@ -61,6 +61,8 @@ module Pipely
             @log.warn(error)
           end
         end
+
+        created_pipeline_id
       end
 
       def existing_pipelines(pipeline_name)
