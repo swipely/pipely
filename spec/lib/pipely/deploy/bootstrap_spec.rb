@@ -55,7 +55,7 @@ module Pipely
 
         expect(s3_bucket).to(receive(:objects)).
           at_least(gems.size).times.
-          at_most(gems.size + 1).times. # allow for Bundler
+          at_most(gems.size + 2).times. # allow for json, Bundler
           and_return(objects)
 
         build_and_upload_gems
