@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://a-test-bucket.s3.amazonaws.com/test_path/gems/pipely-0.6.2.gem
+    uri: https://a-test-bucket.s3.amazonaws.com/test_path/gems/pipely-0.7.0.gem
     body:
       encoding: UTF-8
       string: !binary |-
