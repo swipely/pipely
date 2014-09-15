@@ -17,10 +17,14 @@ module Pipely
       ::Bundler.definition.specs_for(groups).each do |spec|
         gem_file = spec.cache_file
 
-        # XXX: Some gems do not exist in the cache, e.g. json. Looks the
-        #      gem is already packaged with the ruby dist
+        # Reuse the downloaded gem
         if File.exists? gem_file
             gem_files[spec.name] = gem_file
+            
+        # Some gems do not exist in the cache, e.g. json. Looks the
+        # gem is already packaged with the ruby dist, so package them again
+        else
+            gem_files.merge build_gem(spec.gem_dir)
         end
       end
 
@@ -50,7 +54,6 @@ module Pipely
     end
 
     def build_gem(source_path)
-      present_dir = Dir.pwd
       gem_spec_path = Dir.glob(File.join(source_path, "*.gemspec")).first
       if gem_spec_path
 
@@ -58,16 +61,25 @@ module Pipely
         gem_spec = Gem::Specification::load(gem_spec_path)
 
         # build the gem
-        Dir.chdir( source_path )
-        source_gem_file =
-          `gem build #{gem_spec_path}`.scan(
-            /File:(.+.gem)$/).flatten.first.strip
-        Dir.chdir( present_dir )
+        gem_file = build_gem_from_spec(source_path, gem_spec_path)
 
-        {gem_spec.name => File.join(source_path,source_gem_file)}
+        {gem_spec.name => File.join(source_path,gem_file)}
       else
         {}
       end
+    end
+
+    def build_gem_from_spec(source_path,gem_spec_path)
+      source_gem_file = nil
+
+      # build the gem
+      Dir.chdir(source_path) do
+        source_gem_file =
+          `gem build #{gem_spec_path}`.scan(
+            /File:(.+.gem)$/).flatten.first.strip
+      end
+
+      source_gem_file
     end
   end
 end
