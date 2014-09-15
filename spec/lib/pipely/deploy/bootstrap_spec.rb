@@ -19,16 +19,11 @@ describe Pipely::Deploy::Bootstrap do
     allow(objects).to receive(:[]) { s3_object }
 
     gems = bundled_gems.each do |name, gem|
-      unless gem.match(/^json-\d+\.\d+\.\d+\.gem$/) or
-             gem.match(/^bundler-\d+\.\d+\.\d+\.gem$/)
-
-        expect(objects).to receive(:[]).with(subject.gem_s3_path(gem))
-      end
+      expect(objects).to receive(:[]).with(subject.gem_s3_path(gem))
     end
 
     expect(s3_bucket).to(receive(:objects)).
-      at_least(gems.size).times.
-      at_most(gems.size + 2).times. # allow for json, bundler
+      exactly(gems.size + 1).times. # pipeline gem + deps
       and_return(objects)
 
     subject.build_and_upload_gems
