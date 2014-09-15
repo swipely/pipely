@@ -23,7 +23,16 @@ module Pipely
       # Builds the project's gem from gemspec, uploads the gem to s3, and
       # uploads all the gem dependences to S3
       def build_and_upload_gems
-        @gem_files = {}
+
+        @gem_files = gems_from_bundler.each do |name, file_path|
+          # Always upload the always upload, otherise
+          # only upload gem if it doesnt exist
+
+          if @always_upload.include?(name) || !s3_gem_exists?( file_path )
+            upload_gem(file_path)
+          end
+        end
+
         gem_spec = Dir.glob("*.gemspec").first
         if gem_spec
           # Build pipeline gem
@@ -31,15 +40,6 @@ module Pipely
           @gem_files.merge!(Pipely::Bundler.build_gem(Dir.pwd))
           upload_gem(@gem_files[@project_spec.name])
         end
-
-        @gem_files.merge!( gems_from_bundler.each do |name, file_path|
-          # Always upload the always upload, otherise
-          # only upload gem if it doesnt exist
-
-          if @always_upload.include?(name) || !s3_gem_exists?( file_path )
-            upload_gem(file_path)
-          end
-        end )
       end
 
       def context
