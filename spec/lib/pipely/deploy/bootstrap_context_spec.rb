@@ -36,8 +36,8 @@ gem install --local two.gem --no-ri --no-rdoc
 
     context "with yield" do
       it "should build script for aws cli" do
-        expect(subject.install_gems_script(:awscli) do |gem_file, filename, command|
-          "custom command - #{gem_file} #{filename} #{command}"
+        expect(subject.install_gems_script(:awscli) do |file,filename,command|
+          "custom command - #{file} #{filename} #{command}"
         end).to eql "
 # one.gem
 custom command - one.gem one.gem aws s3 cp one.gem one.gem
