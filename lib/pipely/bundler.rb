@@ -80,7 +80,8 @@ module Pipely
         result = `gem build #{gem_spec_path} 2>&1`
 
         if result =~ /ERROR/i
-          raise GemBuildError.new("Failed to build #{gem_spec_path} \n" << result)
+          raise GemBuildError.new(
+            "Failed to build #{gem_spec_path} \n" << result)
         else
           source_gem_file = result.scan(
               /File:(.+.gem)$/).flatten.first.strip
