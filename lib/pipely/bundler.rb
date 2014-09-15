@@ -8,6 +8,8 @@ module Pipely
 
     SOURCE_TYPES = %w[Bundler::Source::Git Bundler::Source::Path]
 
+    class GemBuildError < RuntimeError ; end
+
     def gem_names(groups=[:default])
       ::Bundler.definition.specs_for(groups).map(&:name)
     end
@@ -20,7 +22,7 @@ module Pipely
         # Reuse the downloaded gem
         if File.exists? gem_file
             gem_files[spec.name] = gem_file
-            
+
         # Some gems do not exist in the cache, e.g. json. Looks the
         # gem is already packaged with the ruby dist, so package them again
         else
@@ -75,8 +77,14 @@ module Pipely
       # build the gem
       Dir.chdir(source_path) do
         source_gem_file =
-          `gem build #{gem_spec_path}`.scan(
-            /File:(.+.gem)$/).flatten.first.strip
+        result = `gem build #{gem_spec_path} 2>&1`
+
+        if result =~ /ERROR/i
+          raise GemBuildError.new("Failed to build #{gem_spec_path} \n" << result)
+        else
+          source_gem_file = result.scan(
+              /File:(.+.gem)$/).flatten.first.strip
+        end
       end
 
       source_gem_file
