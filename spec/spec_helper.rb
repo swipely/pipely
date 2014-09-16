@@ -3,6 +3,7 @@ require 'aws-sdk'
 require 'fog'
 require 'rspec'
 require 'vcr'
+require 'pry'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 
