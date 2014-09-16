@@ -66,7 +66,8 @@ describe Pipely::Deploy::Bootstrap do
   end
 
   describe "#context" do
-    let(:context) { subject.context }
+    let(:context) { subject.context(s3_steps_path) }
+    let(:s3_steps_path) { 'a/test/path' }
 
     before do
       build_and_upload_gems
@@ -74,6 +75,10 @@ describe Pipely::Deploy::Bootstrap do
 
     it "should have gem_files" do
       expect(context.gem_files).to_not be_nil
+    end
+
+    it "should have s3 steps path" do
+      expect(context.s3_steps_path).to eql s3_steps_path
     end
 
     it "should be an s3 url" do

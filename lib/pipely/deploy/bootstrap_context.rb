@@ -4,11 +4,8 @@ module Pipely
 
     # Context passed to the erb templates
     class BootstrapContext
-      attr_reader :gem_files
-
-      def initialize(gem_files)
-        @gem_files = gem_files
-      end
+      attr_accessor :gem_files
+      attr_accessor :s3_steps_path
 
       def install_gems_script(transport = :hadoop_fs, &blk)
         script = ""
