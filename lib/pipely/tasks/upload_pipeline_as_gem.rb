@@ -1,5 +1,6 @@
 require 'rake'
 require 'aws'
+require 'erubis'
 require 'pipely/deploy/bootstrap'
 
 module Pipely
