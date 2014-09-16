@@ -23,7 +23,7 @@ describe Pipely::Deploy::Bootstrap do
     end
 
     expect(s3_bucket).to(receive(:objects)).
-      exactly(gems.size + 1).times. # pipeline gem + deps
+      exactly(gems.size).times. # pipeline gem + deps
       and_return(objects)
 
     subject.build_and_upload_gems

@@ -31,24 +31,14 @@ module Pipely
           raise "Failed to find pipeline's gemspec"
         end
 
-        @gem_files = gems_from_bundler do |specs|
-          specs.select { |s| s.name != @project_spec.name }
-        end.each do |name, file_path|
-
-          # Always upload the always upload, otherise
-          # only upload gem if it doesnt exist
-          if @always_upload.include?(name) || !s3_gem_exists?( file_path )
-            upload_gem(file_path)
-          end
-        end
-
+        @gem_files = gems_from_bundler(@project_spec.name)
+        upload_gems(@gem_files, @always_upload)
 
         # Project gem should be at the bottom of the dep list
-        if @project_spec
-          @gem_files.merge!(
-            Pipely::Bundler.build_gem(@project_spec.name, Dir.pwd))
-          upload_gem(@gem_files[@project_spec.name])
-        end
+
+        @gem_files.merge!(
+          Pipely::Bundler.build_gem(@project_spec.name, Dir.pwd))
+        upload_gem(@gem_files[@project_spec.name])
 
         @gem_files
       end
@@ -71,15 +61,30 @@ module Pipely
         @s3_bucket.objects[gem_s3_path(gem_file)].exists?
       end
 
+      def upload_gems(gem_files, always_upload)
+        gem_files.each do |name, file_path|
+
+          # Always upload the always upload, otherise
+          # only upload gem if it doesnt exist
+          if always_upload.include?(name) || !s3_gem_exists?( file_path )
+            upload_gem(file_path)
+          end
+        end
+      end
+
       def upload_gem( gem_file )
         puts "uploading #{gem_file} to #{gem_s3_path(gem_file)}"
         @s3_bucket.objects[gem_s3_path(gem_file)].write(File.open(gem_file))
       end
 
-      def gems_from_bundler(&blk)
-        gem_files = Pipely::Bundler.packaged_gems(&blk)
+      def gems_from_bundler(*gems_to_exclude)
+        gem_files = Pipely::Bundler.packaged_gems do |specs|
+          specs.reject { |s| gems_to_exclude.include?(s.name) }
+        end
 
         Pipely::Bundler.build_gems_from_source.each do |name,path|
+          # XXX: using an instance var to track if the gem should be
+          #      uploaded is clumsy
           @always_upload << name
           gem_files[name] = path
         end

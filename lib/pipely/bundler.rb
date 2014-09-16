@@ -40,21 +40,24 @@ module Pipely
       specs = yield(specs, groups) if blk
 
       specs.each do |spec|
-        gem_file = spec.cache_file
-
-        # Reuse the downloaded gem
-        if File.exists? gem_file
-            gem_files[spec.name] = gem_file
-
-        # Some gems do not exist in the cache, e.g. json. Looks the
-        # gem is already packaged with the ruby dist, so package them again
-        else
-            gem_files.merge build_gem(spec.gem_dir)
-        end
-
+        gem_files.merge!(package_gem(spec))
       end
 
       gem_files
+    end
+
+    def package_gem(spec)
+      gem_file = spec.cache_file
+
+      # Reuse the downloaded gem
+      if File.exists? gem_file
+        {spec.name => gem_file}
+
+      # Some gems do not exist in the cache, e.g. json. Looks the
+      # gem is already packaged with the ruby dist, so package them again
+      else
+        build_gem(spec.name, spec.gem_dir)
+      end
     end
 
     def build_gems_from_source(groups=[:default])
@@ -70,7 +73,8 @@ module Pipely
       if gem_spec_path
 
         # Build the gemspec
-        gem_spec = Gem::Specification::load(File.join(source_path,gem_spec_path))
+        gem_spec = Gem::Specification::load(
+          File.join(source_path,gem_spec_path))
 
         # build the gem
         gem_file = build_gem_from_spec(source_path, gem_spec_path)
