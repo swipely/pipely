@@ -37,7 +37,8 @@ module Pipely
         if gem_spec
           # Build pipeline gem
           @project_spec = Gem::Specification::load(gem_spec)
-          @gem_files.merge!(Pipely::Bundler.build_gem(Dir.pwd))
+          @gem_files.merge!(
+            Pipely::Bundler.build_gem(@project_spec.name, Dir.pwd))
           upload_gem(@gem_files[@project_spec.name])
         end
       end

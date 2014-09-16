@@ -26,7 +26,7 @@ module Pipely
         # Some gems do not exist in the cache, e.g. json. Looks the
         # gem is already packaged with the ruby dist, so package them again
         else
-            gem_files.merge build_gem(spec.gem_dir)
+            gem_files.merge build_gem(spec.name, spec.gem_dir)
         end
       end
 
@@ -49,14 +49,14 @@ module Pipely
       end
 
       locked_sources.each do |source|
-        gem_files.merge build_gem(source.path)
+        gem_files.merge( build_gem(source.name, source.path) )
       end
 
       gem_files
     end
 
-    def build_gem(source_path)
-      gem_spec_path = Dir.glob(File.join(source_path, "*.gemspec")).first
+    def build_gem(spec_name, source_path)
+      gem_spec_path = File.join(source_path, "#{spec_name}.gemspec")
       if gem_spec_path
 
         # Build the gemspec
