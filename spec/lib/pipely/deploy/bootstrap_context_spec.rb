@@ -5,7 +5,11 @@ require 'pipely/deploy/bootstrap_context'
 require 'fileutils'
 
 describe Pipely::Deploy::BootstrapContext do
-  subject { Pipely::Deploy::BootstrapContext.new(['one.gem', 'two.gem']) }
+  subject do
+    Pipely::Deploy::BootstrapContext.new.tap do |context|
+      context.gem_files = ['one.gem', 'two.gem']
+    end
+  end
 
   describe "#install_gems_script" do
     it "defaults to hadoop fs" do

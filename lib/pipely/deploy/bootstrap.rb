@@ -42,11 +42,13 @@ module Pipely
         end
       end
 
-      def context
-        BootstrapContext.new(
-          @gem_files.map{ |name, file|
+      def context(s3_steps_path)
+        BootstrapContext.new.tap do |context|
+          context.gem_files = @gem_files.map do |name, file|
             File.join("s3://", @s3_bucket.name, gem_s3_path(file) )
-          } )
+          end
+          context.s3_steps_path = s3_steps_path
+        end
       end
 
       def gem_s3_path(gem_file)
