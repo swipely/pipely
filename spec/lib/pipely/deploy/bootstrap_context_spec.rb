@@ -16,11 +16,11 @@ describe Pipely::Deploy::BootstrapContext do
       expect(subject.install_gems_script).to eql "
 # one.gem
 hadoop fs -copyToLocal one.gem one.gem
-gem install --local one.gem --no-ri --no-rdoc
+gem install --force --local one.gem --no-ri --no-rdoc
 
 # two.gem
 hadoop fs -copyToLocal two.gem two.gem
-gem install --local two.gem --no-ri --no-rdoc
+gem install --force --local two.gem --no-ri --no-rdoc
 "
     end
 
@@ -29,11 +29,11 @@ gem install --local two.gem --no-ri --no-rdoc
         expect(subject.install_gems_script(:awscli) ).to eql "
 # one.gem
 aws s3 cp one.gem one.gem
-gem install --local one.gem --no-ri --no-rdoc
+gem install --force --local one.gem --no-ri --no-rdoc
 
 # two.gem
 aws s3 cp two.gem two.gem
-gem install --local two.gem --no-ri --no-rdoc
+gem install --force --local two.gem --no-ri --no-rdoc
 "
       end
     end
@@ -45,11 +45,11 @@ gem install --local two.gem --no-ri --no-rdoc
         end).to eql "
 # one.gem
 custom command - one.gem one.gem aws s3 cp one.gem one.gem
-gem install --local one.gem --no-ri --no-rdoc
+gem install --force --local one.gem --no-ri --no-rdoc
 
 # two.gem
 custom command - two.gem two.gem aws s3 cp two.gem two.gem
-gem install --local two.gem --no-ri --no-rdoc
+gem install --force --local two.gem --no-ri --no-rdoc
 "
       end
     end

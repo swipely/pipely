@@ -19,13 +19,13 @@ module Pipely
       locked_sources =
         ::Bundler.definition.instance_variable_get(:@locked_sources)
 
-      locked_sources.select! do |source|
+      locked_sources.select do |source|
         # Only include gems for the correct bundler group
         names_of_gems.include?(source.name) &&
 
         # Only build for git and path sources
         SOURCE_TYPES.include?(source.class.name)
-      end || []
+      end
     end
 
     def packaged_gems(groups=[:default], &blk)
@@ -60,49 +60,39 @@ module Pipely
       end
     end
 
-    def build_gems_from_source(groups=[:default])
+    def build_gems_from_source(groups=[:default], &blk)
       gem_files = {}
-      locked_sources(groups).each do |source|
-        gem_files.merge( build_gem(source.name, source.path) )
+      sources = locked_sources(groups)
+      sources = yield(sources) if blk
+      sources.each do |source|
+        gem_files.merge!( build_gem(source.name, source.path) )
       end
       gem_files
     end
 
     def build_gem(spec_name, source_path)
       gem_spec_path = "#{spec_name}.gemspec"
-      if gem_spec_path
 
-        # Build the gemspec
-        gem_spec = Gem::Specification::load(
-          File.join(source_path,gem_spec_path))
+      # Build the gemspec
+      gem_spec = Gem::Specification::load(
+        File.join(source_path,gem_spec_path))
 
-        # build the gem
-        gem_file = build_gem_from_spec(source_path, gem_spec_path)
-
-        {gem_spec.name => File.join(source_path,gem_file)}
-      else
-        {}
-      end
-    end
-
-    def build_gem_from_spec(source_path,gem_spec_path)
-      source_gem_file = nil
+      gem_file = nil
 
       # build the gem
       Dir.chdir(source_path) do
-        source_gem_file =
         result = `gem build #{gem_spec_path} 2>&1`
 
         if result =~ /ERROR/i
           raise GemBuildError.new(
             "Failed to build #{gem_spec_path} \n" << result)
         else
-          source_gem_file = result.scan(
+          gem_file = result.scan(
               /File:(.+.gem)$/).flatten.first.strip
         end
       end
 
-      source_gem_file
+      {gem_spec.name => File.join(source_path,gem_file)}
     end
   end
 end

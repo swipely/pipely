@@ -81,7 +81,9 @@ module Pipely
           specs.reject { |s| gems_to_exclude.include?(s.name) }
         end
 
-        Pipely::Bundler.build_gems_from_source.each do |name,path|
+        Pipely::Bundler.build_gems_from_source do |sources|
+          sources.reject { |s| gems_to_exclude.include?(s.name) }
+        end.each do |name,path|
           # XXX: using an instance var to track if the gem should be
           #      uploaded is clumsy
           @always_upload << name
