@@ -26,7 +26,7 @@ module Pipely
           script << %Q[
 # #{filename}
 #{command}
-gem install --local #{filename} --no-ri --no-rdoc
+gem install --force --local #{filename} --no-ri --no-rdoc
 ]
         end
 
