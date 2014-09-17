@@ -35,7 +35,6 @@ module Pipely
         upload_gems(@gem_files, @always_upload)
 
         # Project gem should be at the bottom of the dep list
-
         @gem_files.merge!(
           Pipely::Bundler.build_gem(@project_spec.name, Dir.pwd))
         upload_gem(@gem_files[@project_spec.name])
