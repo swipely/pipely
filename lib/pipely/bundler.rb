@@ -14,9 +14,32 @@ module Pipely
       ::Bundler.definition.specs_for(groups).map(&:name)
     end
 
-    def packaged_gems(groups=[:default])
+    def locked_sources(groups=[:default])
+      names_of_gems = gem_names(groups)
+      locked_sources =
+        ::Bundler.definition.instance_variable_get(:@locked_sources)
+
+      locked_sources.select! do |source|
+        # Only include gems for the correct bundler group
+        names_of_gems.include?(source.name) &&
+
+        # Only build for git and path sources
+        SOURCE_TYPES.include?(source.class.name)
+      end || []
+    end
+
+    def packaged_gems(groups=[:default], &blk)
       gem_files = {}
-      ::Bundler.definition.specs_for(groups).each do |spec|
+      specs = ::Bundler.definition.specs_for(groups)
+
+      # Do not package source gems
+      source_gem_names = locked_sources(groups).map(&:name)
+      specs = specs.to_a.reject { |s| source_gem_names.include?(s.name) }
+
+      # allow custom filtering of gems
+      specs = yield(specs, groups) if blk
+
+      specs.each do |spec|
         gem_file = spec.cache_file
 
         # Reuse the downloaded gem
@@ -28,39 +51,26 @@ module Pipely
         else
             gem_files.merge build_gem(spec.gem_dir)
         end
+
       end
 
       gem_files
     end
 
     def build_gems_from_source(groups=[:default])
-
       gem_files = {}
-      names_of_gems = gem_names(groups)
-      locked_sources =
-        ::Bundler.definition.instance_variable_get(:@locked_sources)
-
-      locked_sources.select! do |source|
-        # Only include gems for the correct bundler group
-        names_of_gems.include?(source.name) &&
-
-        # Only build for git and path sources
-        SOURCE_TYPES.include?(source.class.name)
+      locked_sources(groups).each do |source|
+        gem_files.merge( build_gem(source.name, source.path) )
       end
-
-      locked_sources.each do |source|
-        gem_files.merge build_gem(source.path)
-      end
-
       gem_files
     end
 
-    def build_gem(source_path)
-      gem_spec_path = Dir.glob(File.join(source_path, "*.gemspec")).first
+    def build_gem(spec_name, source_path)
+      gem_spec_path = "#{spec_name}.gemspec"
       if gem_spec_path
 
         # Build the gemspec
-        gem_spec = Gem::Specification::load(gem_spec_path)
+        gem_spec = Gem::Specification::load(File.join(source_path,gem_spec_path))
 
         # build the gem
         gem_file = build_gem_from_spec(source_path, gem_spec_path)

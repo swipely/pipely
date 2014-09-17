@@ -23,23 +23,34 @@ module Pipely
       # Builds the project's gem from gemspec, uploads the gem to s3, and
       # uploads all the gem dependences to S3
       def build_and_upload_gems
+        gem_spec = Dir.glob("*.gemspec").first
+        if gem_spec
+          # project gem spec
+          @project_spec = Gem::Specification::load(gem_spec)
+        else
+          raise "Failed to find pipeline's gemspec"
+        end
 
-        @gem_files = gems_from_bundler.each do |name, file_path|
+        @gem_files = gems_from_bundler do |specs|
+          specs.select { |s| s.name != @project_spec.name }
+        end.each do |name, file_path|
+
           # Always upload the always upload, otherise
           # only upload gem if it doesnt exist
-
           if @always_upload.include?(name) || !s3_gem_exists?( file_path )
             upload_gem(file_path)
           end
         end
 
-        gem_spec = Dir.glob("*.gemspec").first
-        if gem_spec
-          # Build pipeline gem
-          @project_spec = Gem::Specification::load(gem_spec)
-          @gem_files.merge!(Pipely::Bundler.build_gem(Dir.pwd))
+
+        # Project gem should be at the bottom of the dep list
+        if @project_spec
+          @gem_files.merge!(
+            Pipely::Bundler.build_gem(@project_spec.name, Dir.pwd))
           upload_gem(@gem_files[@project_spec.name])
         end
+
+        @gem_files
       end
 
       def context(s3_steps_path)
@@ -65,8 +76,8 @@ module Pipely
         @s3_bucket.objects[gem_s3_path(gem_file)].write(File.open(gem_file))
       end
 
-      def gems_from_bundler
-        gem_files = Pipely::Bundler.packaged_gems
+      def gems_from_bundler(&blk)
+        gem_files = Pipely::Bundler.packaged_gems(&blk)
 
         Pipely::Bundler.build_gems_from_source.each do |name,path|
           @always_upload << name
