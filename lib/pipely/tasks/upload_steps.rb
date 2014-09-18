@@ -1,5 +1,6 @@
 require 'rake'
 require 'rake/tasklib'
+require 'pipely/aws'
 
 module Pipely
   module Tasks
@@ -68,7 +69,7 @@ module Pipely
     private
 
       def with_bucket
-        s3 = AWS::S3.new
+        s3 = Pipely::Aws.S3
         bucket = s3.buckets[s3_bucket_name]
 
         if bucket.exists?

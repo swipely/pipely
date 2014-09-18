@@ -1,6 +1,7 @@
 require 'rake'
 require 'aws'
 require 'erubis'
+require 'pipely/aws'
 require 'pipely/deploy/bootstrap'
 
 module Pipely
@@ -55,7 +56,7 @@ module Pipely
 
       private
       def s3_bucket
-          s3 = AWS::S3.new
+          s3 = Pipely::Aws.S3
           s3.buckets[@bucket_name]
       end
 

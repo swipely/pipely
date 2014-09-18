@@ -2,12 +2,13 @@
 
 require 'spec_helper'
 require 'pipely/deploy/bootstrap'
+require 'pipely/aws'
 require 'fileutils'
 
 describe Pipely::Deploy::Bootstrap do
   subject { described_class.new(s3_bucket, 'test_path/gems') }
   let(:s3_bucket) do
-     s3 = AWS::S3.new
+     s3 = Pipely::Aws.S3
      s3.buckets['a-test-bucket']
   end
 
