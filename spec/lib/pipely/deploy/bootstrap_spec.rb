@@ -40,7 +40,7 @@ describe Pipely::Deploy::Bootstrap do
   describe "#gems_from_bundler" do
     it "should have a hash of gems" do
       expect(subject.gems_from_bundler.keys.sort).to eql(
-        %w[activesupport aws-sdk aws-sdk-v1 axiom-types builder bundler
+        %w[activesupport aws-sdk aws-sdk-v1 axiom-types builder
            coercible descendants_tracker equalizer erubis excon fog
            fog-brightbox fog-core fog-json fog-softlayer formatador
            i18n ice_nine inflecto ipaddress json mime-types mini_portile
