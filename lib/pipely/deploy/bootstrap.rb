@@ -79,7 +79,7 @@ module Pipely
       def gems_from_bundler(*gems_to_exclude)
         # Always exclude bundler
         gems_to_exclude << 'bundler'
-        
+
         gem_files = Pipely::Bundler.packaged_gems do |specs|
           specs.reject { |s| gems_to_exclude.include?(s.name) }
         end
