@@ -53,8 +53,9 @@ module Pipely
       if File.exists? gem_file
         {spec.name => gem_file}
 
-      # Some gems do not exist in the cache, e.g. json. Looks the
-      # gem is already packaged with the ruby dist, so package them again
+      # Some gems do not exist in the cache, e.g. json. Looks like
+      # the gems are shipped with the ruby dist, so they will built
+      # into gems
       else
         build_gem(spec.name, spec.gem_dir)
       end
