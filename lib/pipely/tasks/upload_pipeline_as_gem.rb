@@ -66,7 +66,7 @@ module Pipely
 
         # erb context
         {
-          bootstrap: bootstrap_helper.context,
+          bootstrap: bootstrap_helper.context(@s3_steps_path),
           config: config
         }
       end
