@@ -5,82 +5,49 @@ require 'pipely/deploy/bootstrap'
 require 'fileutils'
 
 describe Pipely::Deploy::Bootstrap do
-  subject { described_class.new(s3_bucket, 'test_path/gems') }
-  let(:s3_bucket) do
-     s3 = AWS::S3.new
-     s3.buckets['a-test-bucket']
-  end
 
-  let(:bundled_gems) { subject.gems_from_bundler }
-  let(:build_and_upload_gems) do
-    objects = double(:objects)
-    s3_object = double('s3_object', write: nil, exists?: true)
+  subject { described_class.new(s3_uploader) }
 
-    allow(objects).to receive(:[]) { s3_object }
+  let(:s3_uploader) { double }
 
-    gems = bundled_gems.each do |name, gem|
-      expect(objects).to receive(:[]).with(subject.gem_s3_path(gem))
-    end
-
-    expect(s3_bucket).to(receive(:objects)).
-      exactly(gems.size).times. # pipeline gem + deps
-      and_return(objects)
-
-    subject.build_and_upload_gems
-  end
-
-  it "should have bucket name" do
-    expect(subject.bucket_name).to eql 'a-test-bucket'
-  end
-
-  it "should have a s3 gems path" do
-    expect(subject.s3_gems_path).to eql 'test_path/gems'
-  end
-
-  describe "#gems_from_bundler" do
-    it "should have a hash of gems" do
-      expect(subject.gems_from_bundler.keys.sort).to eql(
-        %w[activesupport aws-sdk aws-sdk-v1 axiom-types builder
-           coercible descendants_tracker equalizer erubis excon fog
-           fog-brightbox fog-core fog-json fog-softlayer formatador
-           i18n ice_nine inflecto ipaddress json mime-types mini_portile
-           minitest multi_json net-scp net-ssh nokogiri pipely rake
-           ruby-graphviz thread_safe tzinfo unf unf_ext uuidtools
-           virtus]
-      )
-    end
+  let(:gem_files) do
+    {
+      'packaged-gem1' => '/path/to/cache/packaged-gem1.gem',
+      'built-from-source-gem1' => '/path/to/cache/built-from-source-gem1.gem',
+    }
   end
 
   describe "#build_and_upload_gems" do
     before do
-      build_and_upload_gems
+      allow(Pipely::Bundler).to receive(:gem_files) { gem_files }
     end
 
-    it "should create project gem" do
-      expect(File).to exist(subject.project_spec.file_name)
+    it 'uploads each gem' do
+      expect(s3_uploader).to receive(:upload).with(gem_files.values)
+
+      subject.build_and_upload_gems
     end
   end
 
   describe "#context" do
     let(:context) { subject.context(s3_steps_path) }
     let(:s3_steps_path) { 'a/test/path' }
+    let(:s3_gem_paths) { double }
 
     before do
-      build_and_upload_gems
-    end
+      allow(subject).to receive(:gem_files) { gem_files }
 
-    it "should have gem_files" do
-      expect(context.gem_files).to_not be_nil
+      allow(s3_uploader).to receive(:s3_urls).with(gem_files.values) do
+        s3_gem_paths
+      end
     end
 
     it "should have s3 steps path" do
-      expect(context.s3_steps_path).to eql s3_steps_path
+      expect(context.s3_steps_path).to eq(s3_steps_path)
     end
 
-    it "should be an s3 url" do
-      reg =
-        /^s3:\/\/#{subject.bucket_name}\/#{subject.s3_gems_path}/
-      expect(context.gem_files.first).to match(reg)
+    it "builds S3 urls to the uploaded gem files" do
+      expect(context.gem_files).to eq(s3_gem_paths)
     end
   end
 end
