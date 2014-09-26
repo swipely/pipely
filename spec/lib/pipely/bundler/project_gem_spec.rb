@@ -11,7 +11,7 @@ describe Pipely::Bundler::ProjectGem do
       file_name: "/path/to/cache/my-project.gem"
   end
 
-  subject { described_class.new(project_spec) }
+  subject { described_class.new(project_spec, 'vendor/test') }
 
   describe ".load" do
     let(:filename) { 'foo.gemspec' }
@@ -23,7 +23,7 @@ describe Pipely::Bundler::ProjectGem do
     end
 
     it "loads the gemspec" do
-      loaded = described_class.load
+      loaded = described_class.load('vendor/test')
       expect(loaded.project_spec).to eq(gemspec)
     end
   end

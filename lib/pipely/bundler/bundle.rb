@@ -12,16 +12,17 @@ module Pipely
 
       SOURCE_TYPES = %w[Bundler::Source::Git Bundler::Source::Path]
 
-      def self.build(groups=[:default], definition=::Bundler.definition,
-                     vendor_dir='vendor/pipeline')
+      def self.build(vendor_dir,
+                     groups=[:default],
+                     definition=::Bundler.definition)
         new(
+          vendor_dir,
           definition.specs_for(groups),
-          definition.instance_variable_get(:@locked_sources),
-          vendor_dir
+          definition.instance_variable_get(:@locked_sources)
         )
       end
 
-      def initialize(spec_set, locked_sources, vendor_dir)
+      def initialize(vendor_dir, spec_set, locked_sources)
         @spec_set = spec_set
         @locked_sources = locked_sources
         @vendor_dir = vendor_dir

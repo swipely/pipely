@@ -15,11 +15,10 @@ module Pipely
       class GemBuildError < RuntimeError ; end
       class GemFetchError < RuntimeError ; end
 
-      def initialize(dest)
-        if Dir.exists? dest
-          @dest = dest
-        else
-          raise "#{dest} does not exist"
+      def initialize(vendor_dir)
+        @vendor_dir = vendor_dir
+        unless Dir.exists? @vendor_dir
+          FileUtils.mkdir_p(@vendor_dir)
         end
       end
 
@@ -38,7 +37,7 @@ module Pipely
 
       def vendor_local_gem(spec)
         gem_file = spec.cache_file
-        vendored_gem = File.join( @dest, File.basename(gem_file) )
+        vendored_gem = File.join( @vendor_dir, File.basename(gem_file) )
 
         if File.exists?(vendored_gem)
           { spec.name => vendored_gem }
@@ -71,9 +70,9 @@ module Pipely
         # Move to vendor dir
         FileUtils.mv(
           File.join(source_path,gem_file),
-          File.join(@dest,gem_file))
+          File.join(@vendor_dir,gem_file))
 
-        { gem_spec.name => File.join(@dest, gem_file) }
+        { gem_spec.name => File.join(@vendor_dir, gem_file) }
       end
 
       def build_gem(spec_name, source_path)
@@ -93,12 +92,12 @@ module Pipely
       end
 
       def download_from_rubygems(gem_file_name)
-        vendored_gem = File.join( @dest, gem_file_name )
+        vendored_gem = File.join( @vendor_dir, gem_file_name )
 
         # XXX: add link on wiki details what is going on here
-        puts "Fetching gem #{gem_file_name} directly from rubygems, most likely
-              this gem was packaged along with your ruby distrubtion, for more
-              details see LINK"
+        puts "Fetching gem #{gem_file_name} directly from rubygems, most " +
+             "likely this gem was packaged along with your ruby " +
+             "distrubtion, for more details see LINK"
 
         ruby_gem_url = "https://rubygems.org/downloads/#{gem_file_name}"
         response = Excon.get( ruby_gem_url, {
