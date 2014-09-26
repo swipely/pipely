@@ -68,7 +68,8 @@ describe Pipely::Bundler::GemPackager do
           expect(Excon).to receive(:get).with(
             "https://rubygems.org/downloads/test-0.0.1.gem", anything())
             .and_return(response)
-          expect(subject.package(gem_spec)).to eq({"test"=>"vendor/test/test-0.0.1.gem"})
+          expect(subject.package(gem_spec)).to eq(
+            {"test"=>"vendor/test/test-0.0.1.gem"})
         end
       end
 
