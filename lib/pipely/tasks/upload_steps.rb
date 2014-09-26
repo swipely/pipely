@@ -57,11 +57,8 @@ module Pipely
 
       def run_task(verbose)
         with_bucket do |bucket|
-          step_files.each do |file_name|
-            dest = file_name.sub(/^#{local_path}/, s3_path)
-            puts "uploading #{dest}" if verbose
-            bucket.objects[dest].write(File.read(file_name))
-          end
+          s3_uploader = Pipely::Deploy::S3Uploader.new(bucket, s3_path)
+          s3_uploader.upload(step_files)
         end
       end
 
