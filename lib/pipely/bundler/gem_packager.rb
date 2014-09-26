@@ -13,6 +13,7 @@ module Pipely
       # Alert upon gem-building failures
       #
       class GemBuildError < RuntimeError ; end
+      class GemFetchError < RuntimeError ; end
 
       def initialize(dest)
         if Dir.exists? dest
@@ -41,10 +42,12 @@ module Pipely
         elsif File.directory?(spec.gem_dir)
           build_from_source(spec.name, spec.gem_dir)
 
+        # Finally, some gems do not exist in the cache or as source.  For
+        # instance, json is shipped with the ruby dist. Try to fetch directly
+        # from rubygems.
         else
-          # Finally, some gems do not exist in the cache or as source.  For
-          # instance, json is shipped with the ruby dist.  Skip these.
-          {}
+          gem_name = "#{spec.name}-#{spec.version}.gem"
+          { spec.name => download_from_rubygems(gem_name)}
         end
       end
 
@@ -76,6 +79,30 @@ module Pipely
         end
 
         { gem_spec.name => File.join(@dest, gem_file) }
+      end
+
+      def download_from_rubygems(gem_name)
+        vendored_gem = File.join( @dest, gem_name )
+
+        # XXX: add link on wiki details what is going on here
+        puts "Fetching gem #{gem_name} directly from rubygems, most likely
+              this gem was packaged along with your ruby distrubtion, see LINK
+              for more details"
+
+        ruby_gem_url = "https://rubygems.org/downloads/#{gem_name}"
+        response = Excon.get( ruby_gem_url, {
+          middlewares: Excon.defaults[:middlewares] +
+                       [Excon::Middleware::RedirectFollower]
+        })
+
+        if response.status == 200
+          File.open(vendored_gem, 'w') { |file| file.write( response.body ) }
+          return vendored_gem
+        else
+          raise GemFetchError.new(
+            "Failed to find #{gem_name} at rubygems, recieved
+            #{response.status} with #{response.body}" )
+        end
       end
     end
   end

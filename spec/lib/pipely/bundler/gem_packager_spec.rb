@@ -63,8 +63,27 @@ describe Pipely::Bundler::GemPackager do
           allow(File).to receive(:directory?).with(gem_spec.gem_dir) { false }
         end
 
-        it "returns an empty hash" do
-          expect(subject.package(gem_spec)).to eq({})
+        it "downloads from rubygems" do
+          response = double(:response, status: 200, body: 'im a gem')
+          expect(Excon).to receive(:get).with(
+            "https://rubygems.org/downloads/test-0.0.1.gem", anything())
+            .and_return(response)
+          expect(subject.package(gem_spec)).to eq({"test"=>"vendor/test/test-0.0.1.gem"})
+        end
+      end
+
+      context "if source not available and not on rubygems" do
+        before do
+          allow(File).to receive(:directory?).with(gem_spec.gem_dir) { false }
+        end
+
+        it "raises" do
+          response = double(:response, status: 400, body: 'test')
+          expect(Excon).to receive(:get).with(
+            "https://rubygems.org/downloads/test-0.0.1.gem", anything())
+            .and_return(response)
+
+          expect { subject.package(gem_spec) }.to raise_error
         end
       end
     end
