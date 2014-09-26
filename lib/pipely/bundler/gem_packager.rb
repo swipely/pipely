@@ -1,3 +1,6 @@
+require 'fileutils'
+require 'excon'
+
 module Pipely
   module Bundler
 
@@ -11,15 +14,31 @@ module Pipely
       #
       class GemBuildError < RuntimeError ; end
 
+      def initialize(dest)
+        if Dir.exists? dest
+          @dest = dest
+        else
+          raise "#{dest} does not exist"
+        end
+      end
+
       def package(spec)
         gem_file = spec.cache_file
+        vendored_gem = File.join( @dest, File.basename(gem_file) )
 
+        # Gem has already been vendored
+        return { spec.name => vendored_gem } if File.exists?(vendored_gem)
+
+        # Gem exists in the local ruby gems cache
         if File.exists? gem_file
-          # Reuse the downloaded gem if it exists.
-          { spec.name => gem_file }
 
+          # Copy to vendor dir
+          FileUtils.cp(gem_file, vendored_gem)
+
+          { spec.name => vendored_gem }
+
+        # If source exists, build a gem from it
         elsif File.directory?(spec.gem_dir)
-          # Otherwise, build from source if *that* exists.
           build_from_source(spec.name, spec.gem_dir)
 
         else
@@ -49,9 +68,14 @@ module Pipely
             gem_file = result.scan(
                 /File:(.+.gem)$/).flatten.first.strip
           end
+
+          # Move to vendor dir
+          FileUtils.mv(
+            File.join(source_path,gem_file),
+            File.join(@dest,gem_file))
         end
 
-        { gem_spec.name => File.join(source_path,gem_file) }
+        { gem_spec.name => File.join(@dest, gem_file) }
       end
     end
   end

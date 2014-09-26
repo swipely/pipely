@@ -28,7 +28,7 @@ describe Pipely::Bundler::Bundle do
   let(:spec_set) { [ pipely_spec, gem1_spec, gem2_spec ] }
   let(:locked_sources) { [ pipely_source ] }
 
-  subject { described_class.new(spec_set, locked_sources) }
+  subject { described_class.new(spec_set, locked_sources, 'vendor/test') }
 
   describe "#gem_files" do
     let(:gem_packager) { double }

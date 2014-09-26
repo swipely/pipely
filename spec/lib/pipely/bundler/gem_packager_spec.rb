@@ -1,24 +1,40 @@
+require 'fileutils'
 require 'pipely/bundler/gem_packager'
 
 describe Pipely::Bundler::GemPackager do
+
+  subject { described_class.new(vendor_path) }
+  let(:vendor_path) { 'vendor/test' }
+
+  before(:each) {
+    unless Dir.exists? vendor_path
+      FileUtils.mkdir_p 'vendor/test'
+    end
+  }
 
   describe "#package" do
     let(:gem_spec) do
       double("spec",
         name: 'test',
         cache_file: 'a/cache/file',
-        gem_dir:'a/gem/dir'
+        gem_dir:'a/gem/dir',
+        version:'0.0.1'
       )
     end
 
+    let(:vendored_gem) { "vendor/test/file" }
+
     context "with a cache file" do
       before do
+        allow(File).to receive(:exists?).with(vendored_gem) { false }
         allow(File).to receive(:exists?).with(gem_spec.cache_file) { true }
+        allow(FileUtils).to receive(:cp).with(
+          gem_spec.cache_file, vendored_gem)
       end
 
       it "returns the cache file" do
         expect(subject.package(gem_spec)).to eq(
-          {gem_spec.name => gem_spec.cache_file}
+          {gem_spec.name => vendored_gem}
         )
       end
     end
@@ -26,6 +42,7 @@ describe Pipely::Bundler::GemPackager do
     context "without a cache file" do
       before do
         allow(File).to receive(:exists?).with(gem_spec.cache_file) { false }
+        allow(File).to receive(:exists?).with(vendored_gem) { false }
       end
 
       context "if source is available" do
@@ -46,7 +63,7 @@ describe Pipely::Bundler::GemPackager do
           allow(File).to receive(:directory?).with(gem_spec.gem_dir) { false }
         end
 
-        it "returns an empty hash " do
+        it "returns an empty hash" do
           expect(subject.package(gem_spec)).to eq({})
         end
       end
