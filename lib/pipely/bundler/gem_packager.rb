@@ -14,15 +14,18 @@ module Pipely
       def package(spec)
         gem_file = spec.cache_file
 
-        # Reuse the downloaded gem
         if File.exists? gem_file
-          {spec.name => gem_file}
+          # Reuse the downloaded gem if it exists.
+          { spec.name => gem_file }
 
-        # Some gems do not exist in the cache, e.g. json. Looks like
-        # the gems are shipped with the ruby dist, so they will built
-        # into gems
-        else
+        elsif File.directory?(spec.gem_dir)
+          # Otherwise, build from source if *that* exists.
           build_from_source(spec.name, spec.gem_dir)
+
+        else
+          # Finally, some gems do not exist in the cache or as source.  For
+          # instance, json is shipped with the ruby dist.  Skip these.
+          {}
         end
       end
 
@@ -48,7 +51,7 @@ module Pipely
           end
         end
 
-        {gem_spec.name => File.join(source_path,gem_file)}
+        { gem_spec.name => File.join(source_path,gem_file) }
       end
     end
   end
