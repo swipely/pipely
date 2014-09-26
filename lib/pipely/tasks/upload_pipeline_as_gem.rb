@@ -60,8 +60,8 @@ module Pipely
       end
 
       def build_bootstrap_context
-        bootstrap_helper =
-          Pipely::Deploy::Bootstrap.new(s3_bucket, @s3_gems_path)
+        s3_uploader = Pipely::Deploy::S3Uploader.new(s3_bucket, @s3_gems_path)
+        bootstrap_helper = Pipely::Deploy::Bootstrap.new(s3_uploader)
         bootstrap_helper.build_and_upload_gems
 
         # erb context
@@ -72,7 +72,6 @@ module Pipely
       end
 
       def upload_to_s3( upload_filename, body )
-
         s3_dest = File.join(@s3_steps_path, upload_filename)
         puts "uploading #{s3_dest}" if verbose
         s3_bucket.objects[s3_dest].write(body)
