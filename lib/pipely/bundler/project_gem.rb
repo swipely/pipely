@@ -31,14 +31,14 @@ module Pipely
         @gem_files ||= dependency_gem_files.merge(project_gem_file)
       end
 
-      def dependency_gem_files(bundle=Pipely::Bundler::Bundle.build(@vendor_dir))
+      def dependency_gem_files(bundle=Bundle.build(@vendor_dir))
         # Always exclude bundler and the project gem
         gems_to_exclude = [ @project_spec.name, 'bundler' ]
 
         bundle.gem_files.reject { |name, path| gems_to_exclude.include?(name) }
       end
 
-      def project_gem_file(gem_packager=Pipely::Bundler::GemPackager.new(@vendor_dir))
+      def project_gem_file(gem_packager=GemPackager.new(@vendor_dir))
         gem_packager.build_from_source(@project_spec.name, Dir.pwd)
       end
 

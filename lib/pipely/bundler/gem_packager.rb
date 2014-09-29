@@ -9,10 +9,10 @@ module Pipely
     #
     class GemPackager
 
-      #
       # Alert upon gem-building failures
-      #
       class GemBuildError < RuntimeError ; end
+
+      # Alert upon gem-fetching failures
       class GemFetchError < RuntimeError ; end
 
       def initialize(vendor_dir)
