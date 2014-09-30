@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Pipely
   module Bundler
 
@@ -10,19 +12,27 @@ module Pipely
 
       SOURCE_TYPES = %w[Bundler::Source::Git Bundler::Source::Path]
 
-      def self.build(groups=[:default], definition=::Bundler.definition)
+      def self.build(vendor_dir,
+                     groups=[:default],
+                     definition=::Bundler.definition)
         new(
+          vendor_dir,
           definition.specs_for(groups),
           definition.instance_variable_get(:@locked_sources)
         )
       end
 
-      def initialize(spec_set, locked_sources)
+      def initialize(vendor_dir, spec_set, locked_sources)
         @spec_set = spec_set
         @locked_sources = locked_sources
+        @vendor_dir = vendor_dir
+        unless Dir.exists? @vendor_dir
+          FileUtils.mkdir_p(@vendor_dir)
+        end
+
       end
 
-      def gem_files(gem_packager=GemPackager.new)
+      def gem_files(gem_packager=GemPackager.new(@vendor_dir))
         gem_files = {}
 
         @spec_set.to_a.each do |spec|
@@ -44,8 +54,6 @@ module Pipely
 
       def locked_sources_by_name
         return @locked_sources_by_name if @locked_sources_by_name
-
-        gem_names = @spec_set.map(&:name)
 
         @locked_sources_by_name = {}
 

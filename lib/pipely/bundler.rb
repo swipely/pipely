@@ -20,8 +20,8 @@ module Pipely
     # For gems that are git- or path-sourced, it will first build a fresh cache
     # file for the gem.
     #
-    def self.gem_files
-      ProjectGem.load.gem_files
+    def self.gem_files(vendor_dir='vendor/pipeline')
+      ProjectGem.load(vendor_dir).gem_files
     end
 
   end

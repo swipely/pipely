@@ -12,7 +12,7 @@ describe Pipely::Bundler::Bundle do
     end
 
     it 'builds a Bundle instance with the spec_set' do
-      bundle = described_class.build(groups, definition)
+      bundle = described_class.build('vendor/test', groups, definition)
       expect(bundle.spec_set).to eq(spec_set)
     end
   end
@@ -28,7 +28,7 @@ describe Pipely::Bundler::Bundle do
   let(:spec_set) { [ pipely_spec, gem1_spec, gem2_spec ] }
   let(:locked_sources) { [ pipely_source ] }
 
-  subject { described_class.new(spec_set, locked_sources) }
+  subject { described_class.new('vendor/test', spec_set, locked_sources) }
 
   describe "#gem_files" do
     let(:gem_packager) { double }
