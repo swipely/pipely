@@ -44,8 +44,14 @@ describe Pipely::Bundler::Bundle do
     end
 
     it "returns a cache file for each gem" do
-      gem_files = subject.gem_files(gem_packager)
+      gem_files = subject.gem_files(gem_packager: gem_packager)
       expect(gem_files.keys).to match_array(%w[ gem1 gem2 pipely ])
+    end
+
+    it "filters out gems to exclude" do
+      gem_files = subject.gem_files(gem_packager: gem_packager,
+                                    gems_to_exclude: ['gem2'])
+      expect(gem_files.keys).to match_array(%w[ gem1 pipely ])
     end
 
     context "given a packaged/non-locked gem" do
@@ -53,7 +59,7 @@ describe Pipely::Bundler::Bundle do
         expect(gem_packager).to receive(:package).with(gem1_spec)
         expect(gem_packager).to receive(:package).with(gem2_spec)
 
-        subject.gem_files(gem_packager)
+        subject.gem_files(gem_packager: gem_packager)
       end
     end
 
@@ -64,7 +70,7 @@ describe Pipely::Bundler::Bundle do
           pipely_source.path
         )
 
-        subject.gem_files(gem_packager)
+        subject.gem_files(gem_packager: gem_packager)
       end
     end
   end

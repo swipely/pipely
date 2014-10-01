@@ -59,22 +59,12 @@ describe Pipely::Bundler::ProjectGem do
   end
 
   describe "#dependency_gem_files" do
-    let(:bundle_gem_files) do
-      {
-        'packaged-gem1' => '/path/to/cache/packaged-gem1.gem',
-        'built-from-source-gem1' => '/path/to/cache/built-from-source-gem1.gem',
-        'bundler' => '/path/to/cache/bundler.gem',
-        project_spec.name => project_spec.file_name,
-      }
-    end
-
-    let(:bundle) do
-      double "Pipely::Bundler::Bundle", gem_files: bundle_gem_files
-    end
+    let(:bundle) { double "Pipely::Bundler::Bundle" }
+    let(:excludes) { { gems_to_exclude: [project_spec.name, 'bundler'] } }
 
     it "should filter out the bundler gem and the project gem" do
-      result = subject.dependency_gem_files(bundle)
-      expect(result.keys).to eq(%w[ packaged-gem1 built-from-source-gem1 ])
+      expect(bundle).to receive(:gem_files).with(excludes)
+      subject.dependency_gem_files(bundle)
     end
   end
 

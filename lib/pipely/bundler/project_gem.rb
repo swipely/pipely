@@ -35,7 +35,7 @@ module Pipely
         # Always exclude bundler and the project gem
         gems_to_exclude = [ @project_spec.name, 'bundler' ]
 
-        bundle.gem_files.reject { |name, path| gems_to_exclude.include?(name) }
+        bundle.gem_files(gems_to_exclude: gems_to_exclude)
       end
 
       def project_gem_file(gem_packager=GemPackager.new(@vendor_dir))
