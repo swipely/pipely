@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.add_dependency "fog", "~>1.23.0"
   s.add_dependency "aws-sdk", "~>1.48"
   s.add_dependency "unf"
-  s.add_dependency "uuidtools"
   s.add_dependency "activesupport"
   s.add_dependency "erubis"
   s.add_development_dependency "rspec", "~>2.14.0"
