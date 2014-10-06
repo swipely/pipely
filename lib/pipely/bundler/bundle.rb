@@ -32,12 +32,16 @@ module Pipely
 
       end
 
-      def gem_files(gem_packager=GemPackager.new(@vendor_dir))
+      def gem_files(opts = {})
+        gem_packager = opts[:gem_packager] || GemPackager.new(@vendor_dir)
+        gems_to_exclude = opts[:gems_to_exclude] || []
+
         gem_files = {}
 
-        @spec_set.to_a.each do |spec|
-          gem_files.merge!(gem_file(spec, gem_packager))
-        end
+        excluded_gems = lambda { |s| gems_to_exclude.include? s.name }
+        merge_gem = lambda { |s| gem_files.merge!(gem_file(s, gem_packager)) }
+
+        @spec_set.to_a.reject(&excluded_gems).each(&merge_gem)
 
         gem_files
       end
