@@ -14,7 +14,7 @@ require 'fog'
 require 'aws-sdk'
 require 'logger'
 require 'tempfile'
-require 'uuidtools'
+require 'securerandom'
 
 module Pipely
   module Deploy
@@ -85,7 +85,7 @@ module Pipely
       def create_pipeline(pipeline_name, definition, tags={})
         definition_objects = JSON.parse(definition)['objects']
 
-        unique_id = UUIDTools::UUID.random_create
+        unique_id = SecureRandom.uuid
 
         created_pipeline = @data_pipelines.pipelines.create(
           unique_id: unique_id,
