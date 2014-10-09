@@ -1,5 +1,5 @@
 require 'fileutils'
-require 'excon'
+require 'rubygems/remote_fetcher'
 
 module Pipely
   module Bundler
@@ -100,19 +100,12 @@ module Pipely
              "distrubtion, for more details see LINK"
 
         ruby_gem_url = "https://rubygems.org/downloads/#{gem_file_name}"
-        response = Excon.get( ruby_gem_url, {
-          middlewares: Excon.defaults[:middlewares] +
-                       [Excon::Middleware::RedirectFollower]
-        })
 
-        if response.status == 200
-          File.open(vendored_gem, 'w') { |file| file.write( response.body ) }
-          return vendored_gem
-        else
-          raise GemFetchError.new(
-            "Failed to find #{gem_file_name} at rubygems, recieved
-            #{response.status} with #{response.body}" )
-        end
+        fetcher = Gem::RemoteFetcher.new
+        gem_data = fetcher.fetch_path(ruby_gem_url)
+        IO.binwrite(vendored_gem, gem_data)
+
+        vendored_gem
       end
     end
   end
