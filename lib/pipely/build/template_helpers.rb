@@ -18,7 +18,21 @@ module Pipely
       end
 
       def streaming_hadoop_step(options)
-        parts = [ '/home/hadoop/contrib/streaming/hadoop-streaming.jar' ]
+        hadoop_step(
+          '/home/hadoop/contrib/streaming/hadoop-streaming.jar',
+          options
+        )
+      end
+
+      def s3_dist_cp_hadoop_step(options)
+        hadoop_step(
+          '/home/hadoop/lib/emr-s3distcp-1.0.jar',
+          options
+        )
+      end
+
+      def hadoop_step(jar, options)
+        parts = [ jar ]
 
         if jars = options[:lib_jars]
           parts += Array(jars).map { |jar| ['-libjars', "#{jar}"] }.flatten
