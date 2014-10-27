@@ -1,4 +1,4 @@
 --style-exclude spec/lib/pipely/build/template_spec.rb
 --style-exclude spec/lib/pipely/build/s3_path_builder_spec.rb
---abc-exclude Pipely::Build::TemplateHelpers#streaming_hadoop_step,Pipely::Options.parse
+--abc-exclude Pipely::Build::TemplateHelpers#hadoop_step,Pipely::Options.parse
 --doc-exclude lib/pipely/tasks/*.rb
