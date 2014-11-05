@@ -40,6 +40,10 @@ module Pipely
           parts += ['-outputformat', options[:outputformat] ]
         end
 
+        if options[:inputformat]
+          parts += ['-inputformat', options[:inputformat] ]
+        end
+
         if options[:partitioner]
           parts += ['-partitioner', options[:partitioner] ]
         end
