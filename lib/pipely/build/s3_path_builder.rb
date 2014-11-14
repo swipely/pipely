@@ -15,6 +15,7 @@ module Pipely
         @logs_bucket = options[:logs]
         @steps_bucket = options[:steps]
         @s3prefix = options[:prefix]
+        @namespace = options[:namespace]
       end
 
       def s3_log_prefix
@@ -30,15 +31,15 @@ module Pipely
       end
 
       def s3_asset_prefix
-        "s3://#{@assets_bucket}/#{bucket_relative_s3_asset_prefix}"
+        "s3://#{namespaced_asset_prefix}/#{START_TIME}"
       end
 
       def s3n_asset_prefix
-        "s3n://#{@assets_bucket}/#{@s3prefix}/#{START_TIME}"
+        "s3n://#{namespaced_asset_prefix}/#{START_TIME}"
       end
 
       def s3_shared_asset_prefix
-        "s3://#{@assets_bucket}/#{@s3prefix}/shared/#{START_DATE}"
+        "s3://#{namespaced_asset_prefix}/shared/#{START_DATE}"
       end
 
       def bucket_relative_s3_asset_prefix
@@ -57,6 +58,11 @@ module Pipely
         }
       end
 
+      private
+
+      def namespaced_asset_prefix
+        "#{@assets_bucket}/#{@namespace}"
+      end
     end
 
   end

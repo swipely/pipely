@@ -13,7 +13,8 @@ module Pipely
       end
 
       def s3_path_builder
-        S3PathBuilder.new(config[:s3].merge(prefix: s3_prefix))
+        S3PathBuilder.new(config[:s3].merge(prefix: s3_prefix,
+                                            namespace: config[:namespace]))
       end
 
       def to_json
