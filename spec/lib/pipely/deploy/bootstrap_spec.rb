@@ -2,14 +2,15 @@
 
 require 'spec_helper'
 require 'pipely/deploy/bootstrap'
+require 'pipely/deploy/bootstrap_registry'
 require 'fileutils'
+require 'fixtures/bootstrap_contexts/simple'
+require 'fixtures/bootstrap_contexts/green'
 
 describe Pipely::Deploy::Bootstrap do
 
-  subject { described_class.new(s3_uploader) }
-
-  let(:s3_uploader) { double }
-
+  subject { described_class.new(gem_files, s3_steps_path) }
+  let(:s3_steps_path) { 'a/test/path' }
   let(:gem_files) do
     {
       'packaged-gem1' => '/path/to/cache/packaged-gem1.gem',
@@ -17,37 +18,53 @@ describe Pipely::Deploy::Bootstrap do
     }
   end
 
-  describe "#build_and_upload_gems" do
-    before do
-      allow(Pipely::Bundler).to receive(:gem_files) { gem_files }
-    end
-
-    it 'uploads each gem' do
-      expect(s3_uploader).to receive(:upload).with(gem_files.values)
-
-      subject.build_and_upload_gems
-    end
-  end
-
   describe "#context" do
-    let(:context) { subject.context(s3_steps_path) }
-    let(:s3_steps_path) { 'a/test/path' }
-    let(:s3_gem_paths) { double }
+    context "without any mixins" do
+      let(:context) { subject.context }
 
-    before do
-      allow(subject).to receive(:gem_files) { gem_files }
+      it "should have s3 steps path" do
+        expect(context.s3_steps_path).to eq(s3_steps_path)
+      end
 
-      allow(s3_uploader).to receive(:s3_urls).with(gem_files.values) do
-        s3_gem_paths
+      it "builds S3 urls to the uploaded gem files" do
+        expect(context.gem_files).to eq(gem_files)
       end
     end
 
-    it "should have s3 steps path" do
-      expect(context.s3_steps_path).to eq(s3_steps_path)
+    context "with one mixin" do
+      let(:context) { subject.context( mixin.name ) }
+      let(:mixin) { Fixtures::BootstrapContexts::Simple }
+
+      it "should have Simple mixin method" do
+        expect(context.simple).to eq("simple")
+      end
     end
 
-    it "builds S3 urls to the uploaded gem files" do
-      expect(context.gem_files).to eq(s3_gem_paths)
+    context "with multiple mixins" do
+      let(:context) { subject.context( mixins.map(&:name) ) }
+      let(:mixins) do
+        [Fixtures::BootstrapContexts::Simple,Fixtures::BootstrapContexts::Green]
+      end
+
+      it "should have simple mixin method" do
+        expect(context.simple).to eq("simple")
+      end
+
+      it "should have green mixin method" do
+        expect(context.green).to eq("green")
+      end
+    end
+
+    context "with mixin from BootstrapRegistry" do
+      let(:context) { subject.context }
+      before do
+        Pipely::Deploy::BootstrapRegistry.instance.register_mixins(
+          "Fixtures::BootstrapContexts::Simple")
+      end
+
+      it "should have green mixin method" do
+        expect(context.green).to eq("green")
+      end
     end
   end
 end
