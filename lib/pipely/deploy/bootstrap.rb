@@ -1,5 +1,6 @@
 require 'pipely/bundler'
 require 'pipely/deploy/bootstrap_context'
+require 'pipely/deploy/bootstrap_registry'
 require 'pipely/deploy/s3_uploader'
 require 'active_support/core_ext/string/conversions'
 
@@ -16,20 +17,12 @@ module Pipely
         @s3_steps_path = s3_steps_path
       end
 
-      def context(mixins = [])
-        mixins = [mixins].flatten.compact
-
-        mixins.each do |mixin|
-          begin
-            require mixin.underscore
-          rescue LoadError => e
-            raise "Failed to require #{mixin} for bootstrap_contexts: #{e}"
-          end
-        end
+      def context(*mixins)
+        bootstrap_mixins = BootstrapRegistry.instance.register_mixins(mixins)
 
         BootstrapContext.class_eval do
-          mixins.each do |mixin|
-            puts "Adding bootstrap context #{mixin}"
+          bootstrap_mixins.each do |mixin|
+            puts "Adding bootstrap mixin #{mixin}"
             include mixin.constantize
           end
           self

@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'pipely/deploy/bootstrap'
+require 'pipely/deploy/bootstrap_registry'
 require 'fileutils'
 require 'fixtures/bootstrap_contexts/simple'
 require 'fixtures/bootstrap_contexts/green'
@@ -20,14 +21,6 @@ describe Pipely::Deploy::Bootstrap do
   describe "#context" do
     context "without any mixins" do
       let(:context) { subject.context }
-
-      before do
-      #  allow(subject).to receive(:gem_files) { gem_files }
-
-      #  allow(s3_uploader).to receive(:s3_urls).with(gem_files.values) do
-      #    s3_gem_paths
-      #  end
-      end
 
       it "should have s3 steps path" do
         expect(context.s3_steps_path).to eq(s3_steps_path)
@@ -55,6 +48,18 @@ describe Pipely::Deploy::Bootstrap do
 
       it "should have simple mixin method" do
         expect(context.simple).to eq("simple")
+      end
+
+      it "should have green mixin method" do
+        expect(context.green).to eq("green")
+      end
+    end
+
+    context "with mixin from BootstrapRegistry" do
+      let(:context) { subject.context }
+      before do
+        Pipely::Deploy::BootstrapRegistry.instance.register_mixins(
+          "Fixtures::BootstrapContexts::Simple")
       end
 
       it "should have green mixin method" do
