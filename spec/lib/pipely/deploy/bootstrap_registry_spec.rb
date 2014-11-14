@@ -5,7 +5,7 @@ require 'pipely/deploy/bootstrap_registry'
 
 describe Pipely::Deploy::BootstrapRegistry do
 
-  subject { described_class.instance }
+  subject { described_class }
 
   describe "#mixins" do
     it "should default to empty" do
