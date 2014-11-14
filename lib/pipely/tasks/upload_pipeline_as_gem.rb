@@ -1,4 +1,5 @@
 require 'rake'
+require 'rake/tasklib'
 require 'aws'
 require 'erubis'
 require 'pipely/deploy/bootstrap'
@@ -15,6 +16,7 @@ module Pipely
       attr_accessor :s3_steps_path
       attr_accessor :s3_gems_path
       attr_accessor :config
+      attr_accessor :templates
 
       def initialize(*args, &task_block)
         setup_ivars(args)
@@ -35,12 +37,14 @@ module Pipely
       def setup_ivars(args)
         @name = args.shift || 'deploy:upload_pipeline_as_gem'
         @verbose = true
+        @templates = Dir.glob("templates/*.erb")
       end
 
       def run_task(verbose)
-        context = build_bootstrap_context
+        s3_gem_paths = upload_gems
+        context = build_bootstrap_context(s3_gem_paths)
 
-        Dir.glob("templates/*.erb").each do |erb_file|
+        templates.each do |erb_file|
           upload_filename = File.basename(erb_file).sub( /\.erb$/, '' )
 
           # Exclude the pipeline.json
@@ -55,18 +59,24 @@ module Pipely
 
       private
       def s3_bucket
-          s3 = AWS::S3.new
-          s3.buckets[@bucket_name]
+          @s3_bucket ||= AWS::S3.new.buckets[@bucket_name]
       end
 
-      def build_bootstrap_context
-        s3_uploader = Pipely::Deploy::S3Uploader.new(s3_bucket, @s3_gems_path)
-        bootstrap_helper = Pipely::Deploy::Bootstrap.new(s3_uploader)
-        bootstrap_helper.build_and_upload_gems
+      def upload_gems
+        pipeline_gems = Pipely::Bundler.gem_files
+        s3_uploader = Pipely::Deploy::S3Uploader.new(s3_bucket, s3_gems_path)
+        s3_uploader.upload(pipeline_gems.values)
+        s3_uploader.s3_urls(pipeline_gems.values)
+      end
+
+      def build_bootstrap_context(s3_gems)
+        bootstrap_helper = Pipely::Deploy::Bootstrap.new(s3_gems, s3_steps_path)
+
+        context = bootstrap_helper.context(config['bootstrap_mixins'])
 
         # erb context
         {
-          bootstrap: bootstrap_helper.context(@s3_steps_path),
+          bootstrap: context,
           config: config
         }
       end
