@@ -7,22 +7,33 @@ module Pipely
       attr_accessor :gem_files
       attr_accessor :s3_steps_path
 
-      def install_gems_script(transport = :hadoop_fs, &blk)
-        script = ""
-
+      def fetch_command(transport = :hadoop_fs)
         case transport.to_sym
         when :hadoop_fs
-          transport_cmd = 'hadoop fs -copyToLocal'
+          'hadoop fs -copyToLocal'
         when :awscli
-          transport_cmd = 'aws s3 cp'
-        else
+          'aws s3 cp'
+        end
+      end
+
+      def install_gems_script(transport = :hadoop_fs, &blk)
+
+        transport_cmd = fetch_command(transport)
+
+        if transport_cmd.nil?
           raise "Unsupported transport: #{transport}" unless blk
         end
 
+        script = ""
         @gem_files.each do |gem_file|
           filename = File.basename(gem_file)
-          command = "#{transport_cmd} #{gem_file} #{filename}" if transport_cmd
-          command = yield(gem_file, filename, command) if blk
+          params = [transport_cmd, gem_file, filename]
+          if blk
+            command = yield(*params)
+          else
+            command = params.join(" ")
+          end
+
           script << %Q[
 # #{filename}
 #{command}
