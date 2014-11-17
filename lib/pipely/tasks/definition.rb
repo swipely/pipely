@@ -37,7 +37,7 @@ module Pipely
         directory path
 
         desc "Generates the pipeline definition file"
-        task name, *args do |_, task_args|
+        task name => path do |_, task_args|
           RakeFileUtils.send(:verbose, verbose) do
             if task_block
               task_block.call(*[self, task_args].slice(0, task_block.arity))
