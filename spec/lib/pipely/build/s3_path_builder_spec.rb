@@ -6,7 +6,8 @@ describe Pipely::Build::S3PathBuilder do
     described_class.new(
       logs: 'log-bucket',
       steps: 'step-bucket',
-      assets: 'asset-bucket',
+      assets: 'batch-view-scratch-bucket',
+      namespace: 'namespace',
       prefix: 'run-prefix',
     )
   }
@@ -24,15 +25,15 @@ describe Pipely::Build::S3PathBuilder do
   }
 
   its(:s3_asset_prefix) {
-    should eq("s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}")
+    should eq("s3://batch-view-scratch-bucket/namespace/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}")
   }
 
   its(:s3n_asset_prefix) {
-    should eq("s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}")
+    should eq("s3n://batch-view-scratch-bucket/namespace/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}")
   }
 
   its(:s3_shared_asset_prefix) {
-    should eq("s3://asset-bucket/run-prefix/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}")
+    should eq("s3://batch-view-scratch-bucket/namespace/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}")
   }
 
   describe "#to_hash" do
