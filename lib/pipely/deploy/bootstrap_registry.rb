@@ -1,4 +1,5 @@
 require 'singleton'
+require 'active_support/core_ext/string/conversions'
 
 module Pipely
   module Deploy
@@ -11,6 +12,16 @@ module Pipely
 
       def initialize
         @mixins = []
+      end
+
+      class << self
+        def register_mixins(*mixins)
+          instance.register_mixins(*mixins)
+        end
+
+        def mixins
+          instance.mixins
+        end
       end
 
       def register_mixins(*mixins)
