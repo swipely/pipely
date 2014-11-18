@@ -79,8 +79,24 @@ gem install --force --local two.gem --no-ri --no-rdoc
       end
     end
 
+    context "using the emr context" do
+      let(:emr) { subject.emr }
+
+      describe '#install_gems_script' do
+        it 'should be same as parent hadoop install script' do
+          expect(emr.install_gems_script).to eq(hadoop_install_gems_script)
+        end
+      end
+    end
+
     context "using the ec2 context" do
       let(:ec2) { subject.ec2 }
+
+      describe '#install_gems_script' do
+        it 'should be same as parent aws install script' do
+          expect(ec2.install_gems_script).to eq(aws_install_gems_script)
+        end
+      end
 
       describe "#as_root" do
 

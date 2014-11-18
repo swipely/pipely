@@ -15,11 +15,11 @@ module Pipely
       # Context for EMR instances
       class EmrContext
         def initialize(parent)
-          @parent
+          @parent = parent
         end
 
         def install_gems_script(&blk)
-          @parent.install_gems_script(:awscli, blk)
+          @parent.install_gems_script(:hadoop_fs, &blk)
         end
       end
 
@@ -31,7 +31,7 @@ module Pipely
         end
 
         def install_gems_script(&blk)
-          @parent.install_gems_script(:hadoop_fs, blk)
+          @parent.install_gems_script(:awscli, &blk)
         end
 
         def as_root(init_ssh=true)
