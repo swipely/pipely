@@ -37,7 +37,8 @@ describe Pipely::PipelineDateTime::PipelineYearRange do
 
     describe '#years' do
       let(:expected_years) do
-        ["\#{format(minusDays(@scheduledStartTime, 366), \"YYYY\")}"]
+        ["\#{format(minusDays(@scheduledStartTime, 366), "\
+          "\"YYYY\")}/[0-9]+/[0-9]+"]
       end
 
       it { expect(subject.years).to eq expected_years }
@@ -59,7 +60,8 @@ describe Pipely::PipelineDateTime::PipelineYearRange do
 
     describe '#years' do
       let(:expected_years) do
-        ["\#{format(minusDays(@scheduledStartTime, 367), \"YYYY\")}"]
+        ["\#{format(minusDays(@scheduledStartTime, 367), "\
+          "\"YYYY\")}/[0-9]+/[0-9]+"]
       end
 
       it { expect(subject.years).to eq expected_years }
@@ -82,8 +84,10 @@ describe Pipely::PipelineDateTime::PipelineYearRange do
     describe '#years' do
       let(:expected_years) do
         [
-          "\#{format(minusDays(@scheduledStartTime, 368), \"YYYY\")}",
-          "\#{format(minusDays(@scheduledStartTime, 733), \"YYYY\")}"
+          "\#{format(minusDays(@scheduledStartTime, 368), "\
+            "\"YYYY\")}/[0-9]+/[0-9]+",
+          "\#{format(minusDays(@scheduledStartTime, 733), "\
+            "\"YYYY\")}/[0-9]+/[0-9]+"
         ]
       end
 

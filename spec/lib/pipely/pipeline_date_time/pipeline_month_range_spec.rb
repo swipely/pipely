@@ -37,7 +37,7 @@ describe Pipely::PipelineDateTime::PipelineMonthRange do
 
     describe '#months' do
       let(:expected_months) do
-        ["\#{format(minusDays(@scheduledStartTime, 32), \"YYYY/MM\")}"]
+        ["\#{format(minusDays(@scheduledStartTime, 32), \"YYYY/MM\")}/[0-9]+"]
       end
 
       it { expect(subject.months).to eq expected_months }
@@ -59,7 +59,7 @@ describe Pipely::PipelineDateTime::PipelineMonthRange do
 
     describe '#months' do
       let(:expected_months) do
-        ["\#{format(minusDays(@scheduledStartTime, 33), \"YYYY/MM\")}"]
+        ["\#{format(minusDays(@scheduledStartTime, 33), \"YYYY/MM\")}/[0-9]+"]
       end
 
       it { expect(subject.months).to eq expected_months }
@@ -82,8 +82,8 @@ describe Pipely::PipelineDateTime::PipelineMonthRange do
     describe '#months' do
       let(:expected_months) do
         [
-          "\#{format(minusDays(@scheduledStartTime, 34), \"YYYY/MM\")}",
-          "\#{format(minusDays(@scheduledStartTime, 62), \"YYYY/MM\")}"
+          "\#{format(minusDays(@scheduledStartTime, 34), \"YYYY/MM\")}/[0-9]+",
+          "\#{format(minusDays(@scheduledStartTime, 62), \"YYYY/MM\")}/[0-9]+"
         ]
       end
 

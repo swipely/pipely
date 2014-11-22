@@ -23,7 +23,7 @@ class TestDatePatternMatcher
   private
 
   def days_and_format(part, target_date)
-    trimmed = part.gsub("\#{format(", '').gsub("\")}", '')
+    trimmed = part.gsub("\#{format(", '').gsub(/\"\)}.*/, '')
     days_expr, format = trimmed.split(", \"")
     if days_expr == target_date
       days = 0
