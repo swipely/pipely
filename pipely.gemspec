@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "unf"
   s.add_dependency "activesupport"
   s.add_dependency "erubis"
+  s.add_dependency 'pathology', '~> 0.1.0'
   s.add_development_dependency "rspec", "~>2.14.0"
   s.add_development_dependency "cane"
   s.add_development_dependency "timecop"

@@ -8,9 +8,28 @@ module Pipely
     #
     class EnvironmentConfig < Hash
 
+      # Continue supporting env-based defaults until pipely v1.0
+      ENV_DEFAULTS = {
+        production: {
+          s3_prefix: 'production/:namespace',
+          scheduler: 'daily',
+          start_time: '11:00:00',
+        },
+        staging: {
+          s3_prefix: 'staging/:whoami/:namespace',
+          scheduler: 'now',
+        }
+      }
+
       def self.load(filename, environment)
         raw = YAML.load_file(filename)[environment.to_s]
-        load_from_hash(raw)
+        config = load_from_hash(raw)
+
+        if defaults = ENV_DEFAULTS[environment.to_sym]
+          defaults.merge(config)
+        else
+          config
+        end
       end
 
       def self.load_from_hash(attributes)

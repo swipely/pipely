@@ -6,7 +6,7 @@ module Pipely
     #
     class DailyScheduler
 
-      def initialize(start_time="11:00:00")
+      def initialize(start_time)
         @start_time = start_time
       end
 

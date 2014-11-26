@@ -3,7 +3,7 @@ module Pipely
 
     # Represent a pipeline definition, built from a Template and some config.
     #
-    class Definition < Struct.new(:template,:env,:s3_prefix,:scheduler,:config)
+    class Definition < Struct.new(:template, :env, :config)
       def pipeline_name
         config[:name]
       end
@@ -13,8 +13,23 @@ module Pipely
       end
 
       def s3_path_builder
-        S3PathBuilder.new(config[:s3].merge(prefix: s3_prefix,
-                                            namespace: config[:namespace]))
+      end
+
+      def s3_path_builder
+        if config[:s3_prefix]
+          template = Pathology.template(config[:s3_prefix])
+
+          s3_prefix = template.interpolate(interpolation_context)
+
+          S3PathBuilder.new(
+            config[:s3].merge(
+              prefix: s3_prefix,
+              namespace: config[:namespace],
+            )
+          )
+        else
+          fail('unspecified s3_prefix')
+        end
       end
 
       def to_json
@@ -25,7 +40,26 @@ module Pipely
 
         template.to_json
       end
-    end
 
+    private
+
+      def scheduler
+        case config[:scheduler]
+        when 'daily'
+          DailyScheduler.new(config[:start_time])
+        when 'now'
+          RightNowScheduler.new
+        else
+          fail('unspecified scheduler')
+        end
+      end
+
+      def interpolation_context
+        config.merge({
+          :whoami => `whoami`.strip,
+        })
+      end
+
+    end
   end
 end
