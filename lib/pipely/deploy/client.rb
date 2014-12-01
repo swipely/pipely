@@ -49,16 +49,18 @@ module Pipely
         created_pipeline_id = create_pipeline(pipeline_name,
                                               definition,
                                               tags)
-        @log.info("Created pipeline id '#{created_pipeline_id}'")
+        if created_pipeline_id
+          @log.info("Created pipeline id '#{created_pipeline_id}'")
 
-        # Delete old pipelines
-        pipeline_ids.each do |pipeline_id|
-          begin
-            delete_pipeline(pipeline_id)
-            @log.info("Deleted pipeline '#{pipeline_id}'")
+          # Delete old pipelines
+          pipeline_ids.each do |pipeline_id|
+            begin
+              delete_pipeline(pipeline_id)
+              @log.info("Deleted pipeline '#{pipeline_id}'")
 
-          rescue PipelineDeployerError => error
-            @log.warn(error)
+            rescue PipelineDeployerError => error
+              @log.warn(error)
+            end
           end
         end
 
@@ -87,6 +89,10 @@ module Pipely
 
         unique_id = SecureRandom.uuid
 
+        # Use Fog gem, instead of aws-sdk gem, to create pipeline with tags.
+        #
+        # TODO: Consolidate on aws-sdk when tagging support is added.
+        #
         created_pipeline = @data_pipelines.pipelines.create(
           unique_id: unique_id,
           name: pipeline_name,
@@ -94,9 +100,19 @@ module Pipely
         )
 
         created_pipeline.put(definition_objects)
-        created_pipeline.activate
+
+        # Use aws-sdk gem, instead of Fog, to activate pipeline, for improved
+        # reporting of validation errors.
+        #
+        @aws.activate_pipeline(pipeline_id: created_pipeline.id)
 
         created_pipeline.id
+
+      rescue AWS::Errors::Base => ex
+        @log.error("Failed to activate pipeline.")
+        @log.error("#{ex.class.name}: #{ex.message}")
+
+        false
       end
 
       def delete_pipeline(pipeline_id)
