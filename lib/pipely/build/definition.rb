@@ -12,21 +12,22 @@ module Pipely
         config[:namespace]
       end
 
-      def s3_path_builder
+      def s3_prefix
         if config[:s3_prefix]
           template = Pathology.template(config[:s3_prefix])
-
-          s3_prefix = template.interpolate(interpolation_context)
-
-          S3PathBuilder.new(
-            config[:s3].merge(
-              prefix: s3_prefix,
-              namespace: config[:namespace],
-            )
-          )
+          template.interpolate(interpolation_context)
         else
           fail('unspecified s3_prefix')
         end
+      end
+
+      def s3_path_builder
+        S3PathBuilder.new(
+          config[:s3].merge(
+            prefix: s3_prefix,
+            namespace: config[:namespace],
+          )
+        )
       end
 
       def to_json
