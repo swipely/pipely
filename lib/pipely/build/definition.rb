@@ -13,9 +13,6 @@ module Pipely
       end
 
       def s3_path_builder
-      end
-
-      def s3_path_builder
         if config[:s3_prefix]
           template = Pathology.template(config[:s3_prefix])
 
