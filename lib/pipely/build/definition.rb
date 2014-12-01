@@ -38,8 +38,6 @@ module Pipely
         template.to_json
       end
 
-    private
-
       def scheduler
         case config[:scheduler]
         when 'daily'
@@ -50,6 +48,8 @@ module Pipely
           fail('unspecified scheduler')
         end
       end
+
+    private
 
       def interpolation_context
         config.merge({
