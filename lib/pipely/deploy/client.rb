@@ -15,6 +15,7 @@ require 'aws-sdk'
 require 'logger'
 require 'tempfile'
 require 'securerandom'
+require 'pipely/deploy/json_definition'
 
 module Pipely
   module Deploy
@@ -85,34 +86,32 @@ module Pipely
       end
 
       def create_pipeline(pipeline_name, definition, tags={})
-        definition_objects = JSON.parse(definition)['objects']
-
-        unique_id = SecureRandom.uuid
-
         # Use Fog gem, instead of aws-sdk gem, to create pipeline with tags.
         #
         # TODO: Consolidate on aws-sdk when tagging support is added.
         #
         created_pipeline = @data_pipelines.pipelines.create(
-          unique_id: unique_id,
+          unique_id: SecureRandom.uuid,
           name: pipeline_name,
           tags: default_tags.merge(tags)
         )
 
-        created_pipeline.put(definition_objects)
-
-        # Use aws-sdk gem, instead of Fog, to activate pipeline, for improved
-        # reporting of validation errors.
+        # Use aws-sdk gem, instead of Fog, to put definition and activate
+        # pipeline, for improved reporting of validation errors.
         #
-        @aws.activate_pipeline(pipeline_id: created_pipeline.id)
+        response = @aws.put_pipeline_definition(
+          pipeline_id: created_pipeline.id,
+          pipeline_objects: JSONDefinition.parse(definition)
+        )
 
-        created_pipeline.id
-
-      rescue AWS::Errors::Base => ex
-        @log.error("Failed to activate pipeline.")
-        @log.error("#{ex.class.name}: #{ex.message}")
-
-        false
+        if response[:errored]
+          @log.error("Failed to put pipeline definition.")
+          @log.error(response[:validation_errors].inspect)
+          false
+        else
+          @aws.activate_pipeline(pipeline_id: created_pipeline.id)
+          created_pipeline.id
+        end
       end
 
       def delete_pipeline(pipeline_id)
