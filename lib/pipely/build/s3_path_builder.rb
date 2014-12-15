@@ -1,3 +1,5 @@
+require 'pathology'
+
 module Pipely
   module Build
 
@@ -5,44 +7,72 @@ module Pipely
     #
     class S3PathBuilder
 
-      attr_reader :assets_bucket, :logs_bucket, :steps_bucket
-
       START_TIME = "\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}"
       START_DATE = "\#{format(@scheduledStartTime,'YYYY-MM-dd')}"
 
+      # options[:templates] should contain a Hash of your desired S3 path
+      # patterns, formatted for Pathology.  The remainder of the options Hash
+      # serves as interpolation values for the templates.
+      #
+      # Several additional interpolation variables (:protocol, :timestamp,
+      # :datestamp) are provided by S3PathBuilder at interpolation time.
+      #
+      # If options[:templates] is not present, or if it is missing any of the
+      # legacy templates (assets, logs, steps, etc.), they will be
+      # automatically built, using bucket names found in the options Hash,
+      # preserving the original behavior.
+      #
       def initialize(options)
-        @assets_bucket = options[:assets]
-        @logs_bucket = options[:logs]
-        @steps_bucket = options[:steps]
-        @s3prefix = options[:prefix]
+        @options = options.merge({
+          timestamp: START_TIME,
+          datestamp: START_DATE,
+        })
+
+        @path_templates = default_templates
+
+        if templates = @options.delete(:templates)
+          @path_templates.merge!(templates)
+        end
       end
 
-      def s3_log_prefix
-        "s3://#{@logs_bucket}/#{@s3prefix}/#{START_TIME}"
+      # Support legacy interface, wherein config simply contained bucket names,
+      # and users were forced to abide by Pipely's somewhat arbitrary path
+      # structure.
+      #
+      def default_templates
+        assets, logs, steps = @options.values_at(:assets, :logs, :steps)
+
+        {
+          asset: ":protocol://#{assets}/:prefix/:timestamp",
+          log: ":protocol://#{logs}/:prefix/:timestamp",
+          step: ":protocol://#{steps}/:prefix",
+          shared_asset: ":protocol://#{assets}/:prefix/shared/:datestamp",
+          bucket_relative_asset: ':prefix/:timestamp',
+        }
       end
 
-      def s3_step_prefix
-        "s3://#{@steps_bucket}/#{@s3prefix}"
+      # Implement path interpolation methods, e.g. s3_log_prefix, etc.
+      #
+      def method_missing(method_name, *args, &block)
+        case method_name
+        when /^(s3n?)_(.*)_prefix$/
+          if pattern = @path_templates[$2.to_sym]
+            Pathology.template(pattern).interpolate(
+              @options.merge({protocol: $1})
+            )
+          else
+            super
+          end
+        else
+          super
+        end
       end
 
-      def s3n_step_prefix
-        "s3n://#{@steps_bucket}/#{@s3prefix}"
-      end
-
-      def s3_asset_prefix
-        "s3://#{@assets_bucket}/#{bucket_relative_s3_asset_prefix}"
-      end
-
-      def s3n_asset_prefix
-        "s3n://#{@assets_bucket}/#{@s3prefix}/#{START_TIME}"
-      end
-
-      def s3_shared_asset_prefix
-        "s3://#{@assets_bucket}/#{@s3prefix}/shared/#{START_DATE}"
-      end
-
+      # Re-route legacy method name to the standard format implemented by
+      # method_missing above.
+      #
       def bucket_relative_s3_asset_prefix
-        "#{@s3prefix}/#{START_TIME}"
+        s3_bucket_relative_asset_prefix
       end
 
       def to_hash
