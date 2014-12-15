@@ -76,15 +76,17 @@ module Pipely
       end
 
       def to_hash
-        {
-          :s3_log_prefix => s3_log_prefix,
-          :s3_step_prefix => s3_step_prefix,
-          :s3n_step_prefix => s3n_step_prefix,
-          :s3_asset_prefix => s3_asset_prefix,
-          :s3n_asset_prefix => s3n_asset_prefix,
-          :s3_shared_asset_prefix => s3_shared_asset_prefix,
-          :bucket_relative_s3_asset_prefix => bucket_relative_s3_asset_prefix,
-        }
+        values = %w(s3 s3n).flat_map do |protocol|
+          @path_templates.keys.map do |path_name|
+            key = "#{protocol}_#{path_name}_prefix".to_sym
+            [key, send(key)]
+          end
+        end
+
+        # Support legacy method name.
+        Hash[values].merge({
+          bucket_relative_s3_asset_prefix: bucket_relative_s3_asset_prefix
+        })
       end
 
     end
