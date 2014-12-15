@@ -17,17 +17,17 @@ describe Pipely::Build::Template do
   end
 
   describe "#streaming_hadoop_step(options)" do
-    let(:s3_path_builder) {
-      Pipely::Build::S3PathBuilder.new(
-        logs: 'log-bucket',
-        steps: 'step-bucket',
-        assets: 'asset-bucket',
-        prefix: 'run-prefix'
-      )
-    }
-
     before do
-      subject.apply_config(s3_path_builder.to_hash)
+      # emulate applying config from S3PathBuilder, as done in Definition#to_json
+      subject.apply_config({
+        s3_log_prefix: "s3://log-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}",
+        s3_step_prefix: "s3://step-bucket/run-prefix",
+        s3n_step_prefix: "s3n://step-bucket/run-prefix",
+        s3_asset_prefix: "s3://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}",
+        s3n_asset_prefix: "s3n://asset-bucket/run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}",
+        s3_shared_asset_prefix: "s3://asset-bucket/run-prefix/shared/\#{format(@scheduledStartTime,'YYYY-MM-dd')}",
+        bucket_relative_s3_asset_prefix: "run-prefix/\#{format(@scheduledStartTime,'YYYY-MM-dd_HHmmss')}",
+      })
     end
 
     it "builds a streaming hadoop step" do
