@@ -18,6 +18,10 @@ module Pipely
         staging: {
           s3_prefix: 'staging/:whoami/:namespace',
           scheduler: 'now',
+
+          # Since scheduler can now be overridden via commandline argument,
+          # supply a start_time even for environments that default to 'now'.
+          start_time: '11:00:00',
         }
       }
 
