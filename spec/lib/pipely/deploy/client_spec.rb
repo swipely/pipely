@@ -28,4 +28,30 @@ describe Pipely::Deploy::Client do
     end
   end
 
+  describe '#create_pipeline' do
+    let(:pipeline_name) { "fancy-pipeline" }
+    let(:definition) { "pipeline id: @PIPELINE_ID@" }
+    let(:changed_definition) { "pipeline id: pipeline-four" }
+    let(:new_pipeline_id) { "pipeline-four" }
+    let(:pipeline) { double(:pipeline, id: new_pipeline_id) }
+
+    it 'changed the definition contents' do
+      subject.instance_variable_get(:@data_pipelines)
+        .stub_chain(:pipelines, :create).and_return(pipeline)
+
+      Pipely::Deploy::JSONDefinition.should_receive(:parse)
+        .with(changed_definition)
+
+      subject.instance_variable_get(:@aws)
+        .should_receive(:put_pipeline_definition)
+        .and_return({})
+      subject.instance_variable_get(:@aws)
+        .should_receive(:activate_pipeline)
+
+      subject.create_pipeline(pipeline_name, definition)
+
+      definition.should eq(changed_definition)
+    end
+  end
+
 end

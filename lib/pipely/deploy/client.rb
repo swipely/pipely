@@ -96,6 +96,8 @@ module Pipely
           tags: default_tags.merge(tags)
         )
 
+        definition.gsub!(/@PIPELINE_ID@/, created_pipeline.id)
+
         # Use aws-sdk gem, instead of Fog, to put definition and activate
         # pipeline, for improved reporting of validation errors.
         #
