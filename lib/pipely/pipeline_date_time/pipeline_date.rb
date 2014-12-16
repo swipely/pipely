@@ -51,11 +51,13 @@ module Pipely
       end
 
       def month
-        "\#{format(#{@date_expression}, \"#{PipelineDate.month_format}\")}"
+        "\#{format(#{@date_expression}, "\
+          "\"#{PipelineDate.month_format}\")}/[0-9]+"
       end
 
       def year
-        "\#{format(#{@date_expression}, \"#{PipelineDate.year_format}\")}"
+        "\#{format(#{@date_expression}, "\
+          "\"#{PipelineDate.year_format}\")}/[0-9]+/[0-9]+"
       end
     end
   end

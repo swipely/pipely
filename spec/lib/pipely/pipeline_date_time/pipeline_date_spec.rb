@@ -19,7 +19,7 @@ describe Pipely::PipelineDateTime::PipelineDate do
 
       describe '#month' do
         let(:result) do
-          "\#{format(minusDays(@scheduledStartTime, 5), \"YYYY/MM\")}"
+          "\#{format(minusDays(@scheduledStartTime, 5), \"YYYY/MM\")}/[0-9]+"
         end
 
         it { expect(subject.month).to eq(result) }
@@ -27,7 +27,8 @@ describe Pipely::PipelineDateTime::PipelineDate do
 
       describe '#year' do
         let(:result) do
-          "\#{format(minusDays(@scheduledStartTime, 5), \"YYYY\")}"
+          "\#{format(minusDays(@scheduledStartTime, 5), "\
+            "\"YYYY\")}/[0-9]+/[0-9]+"
         end
 
         it { expect(subject.year).to eq(result) }
@@ -92,7 +93,8 @@ describe Pipely::PipelineDateTime::PipelineDate do
 
       describe '#month' do
         let(:result) do
-          "\#{format(plusDays(@scheduledStartTime, 3), \"#{month_format}\")}"
+          "\#{format(plusDays(@scheduledStartTime, 3), "\
+            "\"#{month_format}\")}/[0-9]+"
         end
 
         it { expect(subject.month).to eq(result) }
@@ -100,7 +102,8 @@ describe Pipely::PipelineDateTime::PipelineDate do
 
       describe '#year' do
         let(:result) do
-          "\#{format(plusDays(@scheduledStartTime, 3), \"#{year_format}\")}"
+          "\#{format(plusDays(@scheduledStartTime, 3), "\
+            "\"#{year_format}\")}/[0-9]+/[0-9]+"
         end
 
         it { expect(subject.year).to eq(result) }
