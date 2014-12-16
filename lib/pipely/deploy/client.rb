@@ -33,7 +33,7 @@ module Pipely
         @aws = AWS::DataPipeline.new.client
       end
 
-      def deploy_pipeline(pipeline_basename, definition)
+      def deploy_pipeline(pipeline_basename, &block)
         pipeline_name = [
           ('P' if ENV['env'] == 'production'),
           ENV['USER'],
@@ -47,9 +47,10 @@ module Pipely
         @log.info("#{pipeline_ids.count} existing pipelines: #{pipeline_ids}")
 
         # Create new pipeline
-        created_pipeline_id = create_pipeline(pipeline_name,
-                                              definition,
-                                              tags)
+        created_pipeline_id = create_pipeline(
+          pipeline_name, tags, &block
+        )
+
         if created_pipeline_id
           @log.info("Created pipeline id '#{created_pipeline_id}'")
 
@@ -85,7 +86,7 @@ module Pipely
         ids
       end
 
-      def create_pipeline(pipeline_name, definition, tags={})
+      def create_pipeline(pipeline_name, tags={})
         # Use Fog gem, instead of aws-sdk gem, to create pipeline with tags.
         #
         # TODO: Consolidate on aws-sdk when tagging support is added.
@@ -95,6 +96,8 @@ module Pipely
           name: pipeline_name,
           tags: default_tags.merge(tags)
         )
+
+        definition = yield(created_pipeline.id)
 
         # Use aws-sdk gem, instead of Fog, to put definition and activate
         # pipeline, for improved reporting of validation errors.

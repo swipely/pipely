@@ -54,10 +54,11 @@ module Pipely
       def run_task(verbose)
         Rake::Task["upload_steps"].invoke
 
-        Pipely::Deploy::Client.new.deploy_pipeline(
-          definition.pipeline_name,
-          definition.to_json
-        )
+        Pipely::Deploy::Client.new
+          .deploy_pipeline(definition.pipeline_name) do |pipeline_id|
+            definition.pipeline_id = pipeline_id
+            definition.to_json
+          end
       end
 
     end

@@ -12,6 +12,8 @@ module Pipely
     class Template
       include TemplateHelpers
 
+      attr_accessor :pipeline_id
+
       def initialize(source)
         @source = source
         @config = {}
