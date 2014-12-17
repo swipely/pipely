@@ -34,6 +34,7 @@ module Pipely
     attribute :type, String
     attribute :color, String
     attribute :execution_state, String
+    attribute :run_time, String
 
     attribute :dependsOn, ReferenceList
     attribute :input, ReferenceList
@@ -106,7 +107,7 @@ module Pipely
   private
 
     def label
-      [id, type, execution_state].compact.join('|')
+      [id, type, execution_state, run_time].compact.join('|')
     end
 
   end
