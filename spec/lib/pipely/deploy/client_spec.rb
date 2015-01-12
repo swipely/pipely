@@ -15,6 +15,7 @@ describe Pipely::Deploy::Client do
 
       subject.should_receive(:create_pipeline).
         with("#{ENV['USER']}:#{pipeline_basename}",
+             nil,
              hash_including( 'basename' => pipeline_basename )
         ).
         and_return(new_pipeline_id)
@@ -44,7 +45,7 @@ describe Pipely::Deploy::Client do
 
       aws.should_receive(:put_pipeline_definition).and_return({})
       aws.should_receive(:activate_pipeline)
-      subject.create_pipeline(pipeline_name) do |pipeline_id|
+      subject.create_pipeline(pipeline_name, nil) do |pipeline_id|
         "Pipeline ID: #{pipeline_id}"
       end
     end

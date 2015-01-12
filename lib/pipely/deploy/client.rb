@@ -33,7 +33,7 @@ module Pipely
         @aws = AWS::DataPipeline.new.client
       end
 
-      def deploy_pipeline(pipeline_basename, &block)
+      def deploy_pipeline(pipeline_basename, definition=nil, &block)
         pipeline_name = [
           ('P' if ENV['env'] == 'production'),
           ENV['USER'],
@@ -48,7 +48,7 @@ module Pipely
 
         # Create new pipeline
         created_pipeline_id = create_pipeline(
-          pipeline_name, tags, &block
+          pipeline_name, definition, tags, &block
         )
 
         if created_pipeline_id
@@ -86,7 +86,7 @@ module Pipely
         ids
       end
 
-      def create_pipeline(pipeline_name, tags={})
+      def create_pipeline(pipeline_name, definition, tags={})
         # Use Fog gem, instead of aws-sdk gem, to create pipeline with tags.
         #
         # TODO: Consolidate on aws-sdk when tagging support is added.
@@ -97,7 +97,7 @@ module Pipely
           tags: default_tags.merge(tags)
         )
 
-        definition = yield(created_pipeline.id)
+        definition ||= yield(created_pipeline.id) if block_given?
 
         # Use aws-sdk gem, instead of Fog, to put definition and activate
         # pipeline, for improved reporting of validation errors.
@@ -107,13 +107,17 @@ module Pipely
           pipeline_objects: JSONDefinition.parse(definition)
         )
 
+        activate_pipeline(response, created_pipeline)
+      end
+
+      def activate_pipeline(response, pipeline)
         if response[:errored]
           @log.error("Failed to put pipeline definition.")
           @log.error(response[:validation_errors].inspect)
           false
         else
-          @aws.activate_pipeline(pipeline_id: created_pipeline.id)
-          created_pipeline.id
+          @aws.activate_pipeline(pipeline_id: pipeline.id)
+          pipeline.id
         end
       end
 
