@@ -4,6 +4,10 @@ module Pipely
     # Represent a pipeline definition, built from a Template and some config.
     #
     class Definition < Struct.new(:template, :env, :config)
+      extend Forwardable
+
+      def_delegators :template, :pipeline_id=, :pipeline_id
+
       def pipeline_name
         config[:name]
       end

@@ -15,7 +15,7 @@ describe Pipely::Deploy::Client do
 
       subject.should_receive(:create_pipeline).
         with("#{ENV['USER']}:#{pipeline_basename}",
-             anything(),
+             nil,
              hash_including( 'basename' => pipeline_basename )
         ).
         and_return(new_pipeline_id)
@@ -24,7 +24,30 @@ describe Pipely::Deploy::Client do
         subject.should_receive(:delete_pipeline).with(id)
       end
 
-      subject.deploy_pipeline(pipeline_basename, definition)
+      subject.deploy_pipeline(pipeline_basename) { definition }
+    end
+  end
+
+  describe '#create_pipeline' do
+    let(:pipeline_name) { 'NewPipeline' }
+    let(:pipeline_id) { 123 }
+    let(:created_pipeline) { double(:created_pipeline, id: pipeline_id) }
+    let(:definition) { "Pipeline ID: 123" }
+
+    let(:data_pipelines) { subject.instance_variable_get(:@data_pipelines) }
+    let(:aws) { subject.instance_variable_get(:@aws) }
+
+    it 'gets the definition from the block' do
+      data_pipelines.stub_chain(:pipelines, :create)
+        .and_return(created_pipeline)
+
+      Pipely::Deploy::JSONDefinition.should_receive(:parse).with(definition)
+
+      aws.should_receive(:put_pipeline_definition).and_return({})
+      aws.should_receive(:activate_pipeline)
+      subject.create_pipeline(pipeline_name, nil) do |pipeline_id|
+        "Pipeline ID: #{pipeline_id}"
+      end
     end
   end
 
