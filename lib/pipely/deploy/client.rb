@@ -130,7 +130,8 @@ module Pipely
       def default_tags
         {
           "environment" => ENV['env'],
-          "creator" => ENV['USER']
+          "creator" => ENV['USER'],
+          "deploy_id" => SecureRandom.uuid
         }
       end
 
