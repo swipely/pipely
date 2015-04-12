@@ -11,6 +11,8 @@ require 'pipely/s3_writer'
 #
 module Pipely
 
+  ENV['AWS_REGION'] ||= 'us-east-1'
+  
   def self.draw(definition_json, filename, component_attributes=nil)
     definition = Definition.parse(definition_json)
 

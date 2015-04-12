@@ -7,10 +7,10 @@ require 'pry'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 
-AWS.config(
+Aws.config[:credentials] = {
   access_key_id: "xxx",
   secret_access_key: "xxx"
-)
+}
 
 Fog.credentials = {
   aws_access_key_id: "xxx",

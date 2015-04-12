@@ -30,7 +30,7 @@ module Pipely
       def initialize(log=nil)
         @log = log || Logger.new(STDOUT)
         @data_pipelines = Fog::AWS::DataPipeline.new
-        @aws = AWS::DataPipeline.new.client
+        @aws = Aws::DataPipeline::Client.new
       end
 
       def deploy_pipeline(pipeline_basename, definition=nil, &block)

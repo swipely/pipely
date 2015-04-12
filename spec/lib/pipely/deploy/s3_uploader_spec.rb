@@ -9,8 +9,7 @@ describe Pipely::Deploy::S3Uploader do
   subject { described_class.new(s3_bucket, 'test_path/gems') }
 
   let(:s3_bucket) do
-     s3 = AWS::S3.new
-     s3.buckets['a-test-bucket']
+     s3 = Aws::S3::Bucket.new('a-test-bucket')
   end
 
   it "should have bucket name" do
