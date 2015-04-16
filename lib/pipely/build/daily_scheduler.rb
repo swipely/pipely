@@ -7,7 +7,7 @@ module Pipely
     class DailyScheduler
 
       def initialize(start_time)
-        @start_time = start_time
+        @start_time = DateTime.parse(start_time).strftime('%H:%M:%S')
       end
 
       def period
