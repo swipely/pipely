@@ -44,6 +44,8 @@ module Pipely
           DailyScheduler.new(config[:start_time])
         when 'now'
           RightNowScheduler.new
+        when 'hourly'
+          HourlyScheduler.new
         else
           fail('unspecified scheduler')
         end
