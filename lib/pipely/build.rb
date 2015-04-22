@@ -1,6 +1,7 @@
 require 'pipely/build/definition'
 require 'pipely/build/template'
 require 'pipely/build/daily_scheduler'
+require 'pipely/build/hourly_scheduler'
 require 'pipely/build/right_now_scheduler'
 require 'pipely/build/s3_path_builder'
 require 'pipely/build/environment_config'
