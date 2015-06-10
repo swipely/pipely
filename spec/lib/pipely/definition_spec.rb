@@ -37,7 +37,9 @@ EOF
   describe '#to_json' do
     it 'renders the components as JSON' do
       original = JSON.parse(definition_json)
-      expect(JSON.parse(subject.to_json)).to eq(original)
+      result = JSON.parse(subject.to_json)
+      id = proc { |x| x['id'] }
+      expect(result['objects'].map(&id)).to eq(original['objects'].map(&id))
     end
   end
 
