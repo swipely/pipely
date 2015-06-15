@@ -1,5 +1,4 @@
 require 'json'
-require 'active_support/core_ext/hash/keys'
 
 module Pipely
   module Deploy
@@ -11,7 +10,7 @@ module Pipely
     class JSONDefinition
       def self.parse(definition)
         definition_objects =
-          JSON.parse(definition)['objects'].map(&:deep_symbolize_keys)
+          JSON.parse(definition, symbolize_names: true)[:objects]
         definition_objects.map { |object| new(object).to_api }
       end
 
