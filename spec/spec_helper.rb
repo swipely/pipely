@@ -1,21 +1,15 @@
 require 'timecop'
 require 'aws-sdk'
-require 'fog'
 require 'rspec'
 require 'vcr'
 require 'pry'
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 
-Aws.config[:credentials] = {
-  access_key_id: "xxx",
-  secret_access_key: "xxx"
-}
-
-Fog.credentials = {
-  aws_access_key_id: "xxx",
-  aws_secret_access_key: "xxx"
-}
+Aws.config.update({
+  region: 'us-east-1',
+  credentials: Aws::Credentials.new('xxx', 'xxx'),
+})
 
 VCR.configure do |c|
   c.allow_http_connections_when_no_cassette = true

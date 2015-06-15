@@ -14,31 +14,30 @@ module Pipely
           $stdout.puts pipeline_ids.to_json
         else
           $stdout.puts pipeline_ids.map { |pipeline|
-            [ pipeline['name'], pipeline['id'] ].join("\t")
+            [ pipeline.name, pipeline.id ].join("\t")
           }
         end
       end
 
-    private
+      private
 
       def pipeline_ids
         ids = []
 
+        data_pipeline = Aws::DataPipeline::Client.new
+
+
+        marker = nil
         begin
-          result = data_pipeline.list_pipelines
-          ids += result['pipelineIdList']
-        end while (result['hasMoreResults'] && result['marker'])
+          result = data_pipeline.list_pipelines(
+            marker: marker,
+          )
+          ids += result.pipeline_id_list
+          marker = result.marker
+        end while (result.has_more_results && marker)
 
         ids
       end
-
-      def data_pipeline
-        Fog::AWS::DataPipeline.new
-      rescue ArgumentError
-        $stderr.puts "#{self.class.name}: Falling back to IAM profile"
-        Fog::AWS::DataPipeline.new(use_iam_profile: true)
-      end
-
     end
 
   end

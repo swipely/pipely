@@ -1,4 +1,3 @@
-require 'pipely/fog_client'
 require 'pipely/runs_report'
 
 module Pipely
@@ -9,9 +8,8 @@ module Pipely
     def initialize(pipeline_id)
       @pipeline_id = pipeline_id
 
-      client = FogClient.new(pipeline_id)
-      @definition_json = client.definition
-      @task_states_by_scheduled_start = client.task_states_by_scheduled_start
+      @definition_json = definition(pipeline_id)
+      @task_states_by_scheduled_start = task_states_by_scheduled_start
 
       unless @definition_json
         raise "No definition found for #{client.pipeline_id}"
@@ -38,7 +36,11 @@ module Pipely
       end
     end
 
-  private
+    private
+
+    def data_pipeline
+      @data_pipeline ||= Aws::DataPipeline::Client.new
+    end
 
     def render_graph(start, task_states, output_path)
       utc_time = Time.now.to_i
@@ -50,5 +52,81 @@ module Pipely
       Pipely.draw(@definition_json, filename, task_states)
     end
 
+    def definition(pipeline_id)
+      objects = data_pipeline.get_pipeline_definition(pipeline_id: pipeline_id)
+      { objects: flatten_pipeline_objects(objects.pipeline_objects) }.to_json
+    end
+
+    def task_states_by_scheduled_start
+      task_states_by_scheduled_start = {}
+
+      all_instances.each do |pipeline_object|
+        component_id = status = scheduled_start = nil
+
+        pipeline_object.fields.each do |field|
+          case field.key
+          when '@componentParent'
+            component_id = field.ref_value
+          when '@status'
+            status = field.string_value
+          when '@scheduledStartTime'
+            scheduled_start = field.string_value
+          end
+        end
+
+        task_states_by_scheduled_start[scheduled_start] ||= {}
+        task_states_by_scheduled_start[scheduled_start][component_id] = {
+          execution_state: status
+        }
+      end
+
+      task_states_by_scheduled_start
+    end
+
+    def all_instances
+      result = {}
+      pipeline_objects = []
+
+      begin
+        result = data_pipeline.query_objects(
+          pipeline_id: pipeline_id,
+          sphere: "INSTANCE",
+          marker: result.marker,
+        )
+
+        instance_details = data_pipeline.describe_objects(
+          pipeline_id: pipeline_id,
+          object_ids: result.ids
+        )
+
+        data_pipeline.describe_objects(pipeline_id, result['ids'])
+        pipeline_objects += instance_details.pipeline_objects
+
+      end while (result.has_more_results && result.marker)
+
+      pipeline_objects
+    end
+
+
+    def flatten_pipeline_objects(objects)
+      objects.each_with_object([]) do |object, result|
+        h = {
+          id: object.id,
+          name: object.name,
+        }
+
+        object.fields.each do |field|
+          k = field.key
+          if field.ref_value
+            h[k] ||= []
+            h[k] << { ref: field.ref_value }
+          else
+            h[k] = field.string_value
+          end
+        end
+
+        result << h
+      end
+    end
   end
 end
