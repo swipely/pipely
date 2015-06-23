@@ -65,8 +65,8 @@ module Pipely
     private
 
       def with_bucket
-        s3 = AWS::S3.new
-        bucket = s3.buckets[s3_bucket_name]
+        s3 = Aws::S3::Resource.new
+        bucket = s3.bucket(s3_bucket_name)
 
         if bucket.exists?
           yield(bucket)
