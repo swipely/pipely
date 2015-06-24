@@ -1,6 +1,6 @@
 require 'rake'
 require 'rake/tasklib'
-require 'aws'
+require 'aws-sdk'
 require 'erubis'
 require 'pipely/deploy/bootstrap'
 
@@ -59,7 +59,7 @@ module Pipely
 
       private
       def s3_bucket
-          @s3_bucket ||= AWS::S3.new.buckets[@bucket_name]
+          @s3_bucket ||= Aws::S3::Bucket.new(@bucket_name)
       end
 
       def upload_gems

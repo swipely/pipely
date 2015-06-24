@@ -1,4 +1,4 @@
-require 'fog/storage'
+require 'aws-sdk'
 
 module Pipely
 
@@ -11,31 +11,11 @@ module Pipely
       @host, @path = uri.host, uri.path.gsub(/^\//,'')
     end
 
-    def directory
-      directory = storage.directories.detect{ |d| d.key == @host }
-
-      directory or raise("Couldn't find S3 bucket '#{@host}'")
-    end
-
     def write(content)
-      remote_file = directory.files.create({
-        :key => @path,
-        :body => content,
-        :public => true,
-      })
-
-      remote_file.public_url
+      s3_bucket = Aws::S3::Bucket.new(@host)
+      s3_object = s3_bucket.object(@path)
+      s3_object.put(body: content, acl: 'public')
+      s3_object.public_url
     end
-
-    private
-
-      def storage
-        Fog::Storage.new({ provider: 'AWS' })
-      rescue ArgumentError
-        $stderr.puts "#{self.class.name}: Falling back to IAM profile"
-        Fog::Storage.new({ provider: 'AWS', use_iam_profile: true })
-      end
-
   end
-
 end

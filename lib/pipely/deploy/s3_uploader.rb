@@ -39,7 +39,7 @@ module Pipely
       #
       def upload_file(file)
         target_path = s3_file_path(file)
-        s3_object = @s3_bucket.objects[target_path]
+        s3_object = @s3_bucket.object(target_path)
 
         content = File.read(file)
         digest = Digest::MD5.hexdigest(content)
@@ -48,7 +48,7 @@ module Pipely
           puts "skipping #{file} to #{target_path} (ETAG matches)"
         else
           puts "uploading #{file} to #{target_path}"
-          s3_object.write(content)
+          s3_object.put(body: content)
         end
       end
 

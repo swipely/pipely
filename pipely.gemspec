@@ -17,12 +17,12 @@ Gem::Specification.new do |s|
   s.add_dependency "ruby-graphviz"
   s.add_dependency "rake"
   s.add_dependency "virtus", "~>1.0.0"
-  s.add_dependency "fog", "~>1.23"
-  s.add_dependency "aws-sdk", "~>1.48"
+  s.add_dependency "aws-sdk", "~>2.0"
   s.add_dependency "unf"
   s.add_dependency "activesupport"
   s.add_dependency "erubis"
   s.add_dependency 'pathology', '~> 0.1.0'
+  s.add_development_dependency 'safe_yaml', '~> 1.0.4'
   s.add_development_dependency "rspec", "~>2.14.0"
   s.add_development_dependency "cane"
   s.add_development_dependency "timecop"

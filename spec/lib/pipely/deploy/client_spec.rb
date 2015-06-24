@@ -31,18 +31,18 @@ describe Pipely::Deploy::Client do
   describe '#create_pipeline' do
     let(:pipeline_name) { 'NewPipeline' }
     let(:pipeline_id) { 123 }
-    let(:created_pipeline) { double(:created_pipeline, id: pipeline_id) }
+    let(:created_pipeline) do
+      double(:created_pipeline, pipeline_id: pipeline_id)
+    end
     let(:definition) { "Pipeline ID: 123" }
 
-    let(:data_pipelines) { subject.instance_variable_get(:@data_pipelines) }
     let(:aws) { subject.instance_variable_get(:@aws) }
 
     it 'gets the definition from the block' do
-      data_pipelines.stub_chain(:pipelines, :create)
-        .and_return(created_pipeline)
 
       Pipely::Deploy::JSONDefinition.should_receive(:parse).with(definition)
 
+      aws.should_receive(:create_pipeline).and_return(created_pipeline)
       aws.should_receive(:put_pipeline_definition).and_return({})
       aws.should_receive(:activate_pipeline)
       subject.create_pipeline(pipeline_name, nil) do |pipeline_id|

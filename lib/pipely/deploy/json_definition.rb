@@ -9,21 +9,22 @@ module Pipely
     #
     class JSONDefinition
       def self.parse(definition)
-        definition_objects = JSON.parse(definition)['objects']
+        definition_objects =
+          JSON.parse(definition, symbolize_names: true)[:objects]
         definition_objects.map { |object| new(object).to_api }
       end
 
       def initialize(object)
         @json_fields = object.clone
-        @id = @json_fields.delete('id')
-        @name = @json_fields.delete('name') || @id
+        @id = @json_fields.delete(:id)
+        @name = @json_fields.delete(:name) || @id
       end
 
       def to_api
         {
-          'id' => @id,
-          'name' => @name,
-          'fields' => fields
+          id: @id,
+          name: @name,
+          fields: fields
         }
       end
 
@@ -35,13 +36,13 @@ module Pipely
 
       def field_for_kv(key, value)
         if value.is_a?(Hash)
-          { 'key' => key, 'refValue' => value['ref'] }
+          { key: key, ref_value: value[:ref] }
 
         elsif value.is_a?(Array)
           value.map { |subvalue| field_for_kv(key, subvalue) }
 
         else
-          { 'key' => key, 'stringValue' => value }
+          { key: key, string_value: value }
 
         end
       end
