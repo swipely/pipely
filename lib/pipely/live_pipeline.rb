@@ -4,6 +4,7 @@ module Pipely
 
   # Represent a pipeline that has been deployed to AWS DataPipeline
   class LivePipeline
+    attr_reader :pipeline_id
 
     def initialize(pipeline_id)
       @pipeline_id = pipeline_id
@@ -84,25 +85,30 @@ module Pipely
     end
 
     def all_instances
-      result = {}
       pipeline_objects = []
+      marker = nil
 
       begin
         result = data_pipeline.query_objects(
           pipeline_id: pipeline_id,
           sphere: "INSTANCE",
-          marker: result.marker,
+          marker: marker,
         )
+
+        marker = result.marker
 
         instance_details = data_pipeline.describe_objects(
           pipeline_id: pipeline_id,
           object_ids: result.ids
         )
 
-        data_pipeline.describe_objects(pipeline_id, result['ids'])
+        data_pipeline.describe_objects(
+          pipeline_id: pipeline_id,
+          object_ids: result.ids
+          )
         pipeline_objects += instance_details.pipeline_objects
 
-      end while (result.has_more_results && result.marker)
+      end while (result.has_more_results && marker)
 
       pipeline_objects
     end
